@@ -27,7 +27,7 @@ namespace Cinemateque.Controllers
         [HttpGet("films")]
         public IActionResult GetAllFilms()
         {
-            var fims = _serv.Context.Film.ToList();
+            var fims = _serv.GetFilms().ToList();
             List<FilmViewModel> fs = new List<FilmViewModel>();
 
             foreach( var f in fims)
@@ -202,9 +202,9 @@ namespace Cinemateque.Controllers
                 Genre = film.Genre,
                 Director = film.Director.DirectorName,
                 PremiereDate = film.PremiereDate.Value.Date.ToString(),
-                Rating = film.Rating.Value,
-                Actors = _serv.Context.FilmActors.Where(f => f.FilmId == film.Id).Select(a => a.Actor.ActorName).ToArray(),
-                Awards = _serv.Context.FilmReward.Where(r => r.FilmId == film.Id).Select(w => w.RewardName).ToArray()
+                Rating = film.Rating.HasValue ? film.Rating.Value : 0,
+                Actors = _serv.GetFilmActors().Where(f => f.FilmId == film.Id).Select(a => a.Actor.ActorName).ToArray(),
+                Awards = _serv.GetFilmRewards().Where(r => r.FilmId == film.Id).Select(w => w.RewardName).ToArray()
             };
         }
     }

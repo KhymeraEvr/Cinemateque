@@ -13,6 +13,8 @@ namespace Cinemateque.Data
     {
         private readonly CinematequeContext _context;
 
+        public CinematequeContext Context => _context;
+
         public FilmService(CinematequeContext context)
         {
             _context = context;
@@ -286,6 +288,7 @@ namespace Cinemateque.Data
 
     public interface IFilmService
     {
+        CinematequeContext Context { get; }
         IEnumerable<Film> SearchFilms(string name, string genre, string director, string actor);
         Task<Film> AddFilm(Film film);
         Film GetSuggestion(string username);
@@ -304,5 +307,10 @@ namespace Cinemateque.Data
         Film UpdateFilm(Film updated);
         Task<FilmActors> AddFilmActor(FilmActors film);
         Task<FilmReward> AddAwards(FilmReward film);
+        IQueryable<User> GetUser();
+        IQueryable<FilmReward> GetFilmRewards();
+        IQueryable<FilmActors> GetFilmActors();
+        IQueryable<UserFilms> GetUserFilms();
+        IQueryable<Film> GetFilms();
     }
 }
