@@ -1,0 +1,46 @@
+﻿@{
+    ViewData["Title"] = "AddFilm";
+}
+<script src="~/js/filmScripts.js"></script>
+
+<h2>AddFilm</h2>
+
+@model AddFilmModel
+
+<link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+<form method="post" asp-controller="Home" asp-action="AddFilm">
+    <div class="form-group">
+        <label asp-for="FilmName">Film Name</label>
+        <input asp-for="FilmName" type="text" class="form-control" id="nameInput" placeholder="Film Name">
+    </div>
+    <div class="form-group">
+        <label asp-for="DirectorId">Direcor Id</label>
+        <input asp-for="DirectorId" type="text" class="form-control" id="directorInput" placeholder="Director Id">
+    </div>
+    <div class="form-group">
+        <label asp-for="Genre">Genre</label>
+        <input asp-for="Genre" type="text" class="form-control" id="genreInput" placeholder="Genre">
+    </div>
+    <div class="form-group">
+        <label asp-for="PremiereDate">Date</label>
+        <input asp-for="PremiereDate" type="date" class="form-control" id="dateInput" placeholder="PremiereDate">
+    </div>
+    <div class="form-group">
+        <label asp-for="Actors">Actors ids</label>
+        <input asp-for="Actors" type="text" class="form-control" id="actorsInput" placeholder="ActorsIds">
+    </div>
+    <div class="form-group">
+        <label asp-for="Awards">Awards</label>
+        <input asp-for="Awards" type="text" class="form-control" id="awardsInput" placeholder="Awards">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Film</button>
+</form>
+<div style="display: flex; padding-top: 50px">
+    <button class="btn btn-primary" onclick="getActors()">Get Actors</button>
+    <button class="btn btn-primary" onclick="getDirectors()">Get Directors</button>
+</div>
+<div style="display: flex;">
+    <table id="actors" class="table" border="1"></table>
+    <table id="directors" class="table" border="1"></table>
+</div>
