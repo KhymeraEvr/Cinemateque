@@ -1,0 +1,23 @@
+﻿
+@{
+    ViewData["Title"] = "Login";
+}
+<script src="~/js/auth.js"></script>
+
+<div class="containerForm">
+    <div class="userInfo" style="display:none;">
+        <h4>Welcome   <span class="userName"></span></h4>
+        <h4>Your role is   <span id="userRole"></span></h4>
+        <input type="button" value="Log Out" id="logOut" />
+    </div>
+
+    <h2>Login</h2>
+    <div class="form-group">
+        <h3>Log In</h3>
+        <label>Input email</label><br />
+        <input type="email" class="form-control" id="emailLogin" /> <br /><br />
+        <label>Input Password</label><br />
+        <input type="password" class="form-control" id="passwordLogin" /><br /><br />
+        <input class="btn btn-primary" type="submit" id="submitLogin" onclick="auth()" value="Login" />
+    </div>
+</div>

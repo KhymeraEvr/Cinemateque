@@ -96,6 +96,12 @@ namespace Cinemateque
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
+                    name: "auth",
+                    template: "users/authenticate",
+                    defaults: new { controller = "Users", action = "Authenticate" }
+                    );
+
+                routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });

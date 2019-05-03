@@ -7,21 +7,36 @@ using Cinemateque.Data;
 using Microsoft.AspNetCore.Mvc;
 using Cinemateque.Models;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cinemateque.Controllers
 {
     public class HomeController : Controller
     {
         private readonly IFilmService _serv;
+        private IUserService _userService;
 
-        public HomeController(IFilmService service)
+        public HomeController(IFilmService service, IUserService userService)
         {
             _serv = service;
+            _userService = userService;
+
         }
 
         public IActionResult Index()
         {
             return View();
+        }
+
+        [HttpPost("authenticate")]
+        public async Task<IActionResult> Authenticate([FromBody]AuthModel userParam)
+        {
+            var user = await _userService.Authenticate(userParam.Username, userParam.Password, this.HttpContext);
+
+            if (user == null)
+                return BadRequest(new { message = "Username or password is incorrect" });
+
+            return Ok(user);
         }
 
         [HttpGet("films")]
@@ -54,6 +69,13 @@ namespace Cinemateque.Controllers
         {
             return Ok(_serv.Context.Director.ToList());
         }
+
+        [HttpGet("Login")]
+        public IActionResult Login()
+        {
+            return View();
+        }
+    
 
         [HttpPost]
         public async Task AddFilm([FromForm] AddFilmModel model)
@@ -101,10 +123,19 @@ namespace Cinemateque.Controllers
             return Ok(_serv.UpdateFilm(model));
         }
 
-        [HttpGet("search")]
+        [HttpPost("search")]
         public IActionResult SearchFilm([FromBody] SearchModel model)
         {
-            return Ok(_serv.SearchFilms(model.Name, model.Genre, model.Director, model.Actor));
+            var films = _serv.SearchFilms(model.Name, model.Genre, model.Director, model.Actor);
+
+            List<FilmViewModel> fs = new List<FilmViewModel>();
+
+            foreach (var f in films)
+            {
+                fs.Add(MapToViewModel(f));
+            }
+
+            return Ok(fs.ToArray());
         }
 
         [HttpGet("suggets")]
@@ -196,12 +227,16 @@ namespace Cinemateque.Controllers
 
         private FilmViewModel MapToViewModel(Film film)
         {
+            var claims = this.User.Identity as ClaimsIdentity;
+            var userID = Convert.ToInt32(claims.FindFirst(ClaimTypes.Name)?.Value);
+            var userFilm = _serv.GetUserFilms().Where(uf => uf.UserId == Convert.ToInt32(userID) && uf.FilmId == film.Id ).FirstOrDefault();
             return new FilmViewModel
             {
                 FilmName = film.FilmName,
                 Genre = film.Genre,
                 Director = film.Director.DirectorName,
                 PremiereDate = film.PremiereDate.Value.Date.ToString(),
+                UserRating = userFilm != null ? (int)userFilm.Rating : 0,
                 Rating = film.Rating.HasValue ? film.Rating.Value : 0,
                 Actors = _serv.GetFilmActors().Where(f => f.FilmId == film.Id).Select(a => a.Actor.ActorName).ToArray(),
                 Awards = _serv.GetFilmRewards().Where(r => r.FilmId == film.Id).Select(w => w.RewardName).ToArray()

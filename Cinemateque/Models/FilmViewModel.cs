@@ -12,6 +12,7 @@ namespace Cinemateque.Models
         public string PremiereDate { get; set; }
         public string Director { get; set; }
         public int Rating { get; set; }
+        public int UserRating { get; set; }
         public string[] Actors { get; set; }
         public string[] Awards { get; set; }
     }

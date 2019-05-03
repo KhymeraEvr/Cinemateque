@@ -10,9 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cinemateque.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UsersController : ControllerBase
+    public class UsersController : Controller
     {
         private IUserService _userService;
 
@@ -21,16 +19,17 @@ namespace Cinemateque.Controllers
             _userService = userService;
         }
 
-        [AllowAnonymous]
-        [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]User userParam)
-        {
-            var user = _userService.Authenticate(userParam.UserName, userParam.Passwrod);
+        //[AllowAnonymous]
+        //[HttpPost("authenticate")]
+        //public async Task<IActionResult> Authenticate([FromBody]AuthModel userParam)
+        //{
+        //    var user =  await _userService.Authenticate(userParam.Username, userParam.Password);
 
-            if (user == null)
-                return BadRequest(new { message = "Username or password is incorrect" });
+        //    if (user == null)
+        //        return BadRequest(new { message = "Username or password is incorrect" });
 
-            return Ok(user);
-        }
+        //    return Ok(user);
+        //}
+
     }
 }

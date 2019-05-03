@@ -1,4 +1,5 @@
 ﻿using Cinemateque.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -14,7 +15,7 @@ namespace Cinemateque.Data
 {
     public interface IUserService
     {
-        User Authenticate(string username, string password);
+        Task<User> Authenticate(string username, string password, HttpContext ctx);
     }
 
     public class UserService : IUserService
@@ -28,13 +29,29 @@ namespace Cinemateque.Data
             _serv = serv;
         }
 
-        public User Authenticate(string username, string password)
+        public async Task<User> Register(string username, string password)
+        {
+            var user = new User
+            {
+                UserName = username,
+                Passwrod = password,
+                Role = "User"
+            };
+
+            var result = await _serv.Context.User.AddAsync(user);
+            await _serv.Context.SaveChangesAsync();
+            return result.Entity;
+        }
+
+        public async Task<User> Authenticate(string username, string password, HttpContext ctx)
         {
             var user = _serv.Context.User.SingleOrDefault(x => x.UserName == username && x.Passwrod == password);
 
             // return null if user not found
             if (user == null)
-                return null;
+            {
+                user = await Register(username, password);
+            }
 
             // authentication successful so generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -48,8 +65,15 @@ namespace Cinemateque.Data
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Id.ToString())
+            };
+
+            var appIdentity = new ClaimsIdentity(claims);
+            ctx.User.AddIdentity(appIdentity);
             var token = tokenHandler.CreateToken(tokenDescriptor);
-           // user.Token = tokenHandler.WriteToken(token);
+            user.Token = tokenHandler.WriteToken(token);
 
             // remove password before returning
             user.Passwrod = null;
