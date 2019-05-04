@@ -15,18 +15,21 @@ namespace Cinemateque.Controllers
     public class HomeController : Controller
     {
         private readonly IFilmService _serv;
-        private IUserService _userService;
+        private readonly IUserService _userService;
+        private int? _userId = null;
 
         private int UserID
         {
             get
             {
-                var tokenCookies = Request.Cookies.FirstOrDefault(c => c.Key == "Token");
-                var token =  tokenCookies.Value;
-                var claims = _userService.DecodeTokenForClaims(token);
-                var what = ClaimTypes.Name;
-                var userID = Convert.ToInt32(claims.FirstOrDefault( c => c.Type == "unique_name")?.Value);
-                return userID;
+                if (_userId == null)
+                {
+                    var tokenCookies = Request.Cookies.FirstOrDefault(c => c.Key == "Token");
+                    var token = tokenCookies.Value;
+                    var claims = _userService.DecodeTokenForClaims(token);
+                    _userId = Convert.ToInt32(claims.FirstOrDefault(c => c.Type == "unique_name")?.Value);
+                }
+                return _userId.Value;
             }
         }
 
@@ -42,17 +45,23 @@ namespace Cinemateque.Controllers
             return View();
         }
 
-        [Route("FilmTable")]
-        public IActionResult FilmTable()
+        [Route("SearchTable")]
+        public IActionResult SearchTable(SearchModel model)
         {
-            var fims = _serv.GetFilms().ToList();
+            var fims = _serv.SearchFilms(model.Name, model.Genre, model.Director, model.Actor).ToList();
             List<FilmViewModel> fs = new List<FilmViewModel>();
 
             foreach (var f in fims)
             {
                 fs.Add(MapToViewModel(f));
             }
-            return View(fs);
+            return View("FilmTable", fs);
+        }
+
+        [HttpPost("search")]
+        public IActionResult SearchFilm([FromBody] SearchModel model)
+        {
+            return RedirectToAction("SearchTable", model);
         }
 
         [HttpPost("authenticate")]
@@ -63,20 +72,7 @@ namespace Cinemateque.Controllers
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
             return Ok(user);
-        }
-
-        [Route("films")]
-        public IActionResult GetAllFilms()
-        {
-            var fims = _serv.GetFilms().ToList();
-            List<FilmViewModel> fs = new List<FilmViewModel>();
-
-            foreach (var f in fims)
-            {
-                fs.Add(MapToViewModel(f));
-            }
-            return View("Index",fs);
-        }
+        }        
 
         [HttpGet("addFilmForm")]
         public IActionResult AddFilmForm()
@@ -147,23 +143,6 @@ namespace Cinemateque.Controllers
         public IActionResult UpdateFilm([FromForm] Film model)
         {
             return Ok(_serv.UpdateFilm(model));
-        }
-
-        [HttpPost("search")]
-        public IActionResult SearchFilm([FromBody] SearchModel model)
-        {
-            var films = _serv.SearchFilms(model.Name, model.Genre, model.Director, model.Actor);
-
-            List<FilmViewModel> fs = new List<FilmViewModel>();
-
-            foreach (var f in films)
-            {
-                fs.Add(MapToViewModel(f));
-            }
-            TempData["films"] = fs;
-
-            return RedirectToAction("Index");
-
         }
 
         [HttpGet("suggets")]

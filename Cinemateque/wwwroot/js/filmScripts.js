@@ -10,7 +10,7 @@
         success: function (data) {
             getTable("actors", data)
         }
-    });      
+    });
 }
 
 function getDirectors() {
@@ -61,21 +61,6 @@ function rate(data) {
     });
 }
 
-function getFilms() {
-    var uri = "films"
-    $.ajax({
-        type: "GET",
-        url: uri,
-        beforeSend: function (xhr) {
-            var token = getCookie("Token");
-            xhr.setRequestHeader("Authorization", "Bearer " + token);
-        },
-        success: function (data) {
-            location.href ="FilmTable"
-        }
-    });
-}
-
 function searchFilm() {
     var name = document.getElementById("nameSearch").value;
     var genre = document.getElementById("genreSearch").value;
@@ -85,7 +70,7 @@ function searchFilm() {
         "Name": name,
         "Genre": genre,
         "Director": director,
-        "Actor" : actors
+        "Actor": actors
     });
 
     $.ajax({
@@ -97,6 +82,9 @@ function searchFilm() {
             var token = getCookie("Token");
             xhr.setRequestHeader("Authorization", "Bearer " + token);
         },
+        success: function (data) {
+            document.getElementById('maybe').innerHTML = data;
+        },
         error: function (data) {
             console.log(data)
         },
@@ -106,7 +94,7 @@ function searchFilm() {
 
 function getTable(selector, data) {
     var table = document.getElementById(selector)
-    var tr = table.insertRow(-1);    
+    var tr = table.insertRow(-1);
 
     var col = [];
     for (var i = 0; i < data.length; i++) {
@@ -118,7 +106,7 @@ function getTable(selector, data) {
     }
 
     for (var i = 0; i < col.length; i++) {
-        var th = document.createElement("th");    
+        var th = document.createElement("th");
         th.innerHTML = col[i];
         tr.appendChild(th);
     }
