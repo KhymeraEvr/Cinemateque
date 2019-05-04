@@ -16,6 +16,7 @@ namespace Cinemateque.Data
     public interface IUserService
     {
         Task<User> Authenticate(string username, string password, HttpContext ctx);
+        IEnumerable<Claim> DecodeTokenForClaims(string token);
     }
 
     public class UserService : IUserService
@@ -79,6 +80,12 @@ namespace Cinemateque.Data
             user.Passwrod = null;
 
             return user;
+        }
+
+        public IEnumerable<Claim> DecodeTokenForClaims(string token)
+        {
+            var Jtoken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            return Jtoken.Claims;
         }
     }
 }

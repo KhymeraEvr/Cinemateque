@@ -28,6 +28,39 @@ function getDirectors() {
     });
 }
 
+
+function watchLater(data) {
+    var filmId = $(data).data('assigned-id');
+    var uri = "later/" + filmId
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            alert('Added to watch later')
+        }
+    });
+}
+
+function rate(data) {
+    var filmId = $(data).data('assigned-id');
+    var uri = "rate/" + filmId + "/" + data.value
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            alert('Rated')
+        }
+    });
+}
+
 function getFilms() {
     var uri = "films"
     $.ajax({
@@ -38,7 +71,7 @@ function getFilms() {
             xhr.setRequestHeader("Authorization", "Bearer " + token);
         },
         success: function (data) {
-            getTable("films", data)
+            location.href ="FilmTable"
         }
     });
 }
@@ -63,9 +96,6 @@ function searchFilm() {
         beforeSend: function (xhr) {
             var token = getCookie("Token");
             xhr.setRequestHeader("Authorization", "Bearer " + token);
-        },
-        success: function (data) {
-            getTable("films", data)
         },
         error: function (data) {
             console.log(data)

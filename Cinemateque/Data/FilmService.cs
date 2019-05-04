@@ -150,6 +150,17 @@ namespace Cinemateque.Data
 
         public async Task<UserFilms> AddWatched(int userId, int filmId, int rating)
         {
+            if (rating == 0) return null;
+            var previousRatings = GetUserFilms().Where(f => f.UserId == userId && f.FilmId == filmId);
+            if( previousRatings != null )
+            {
+                foreach(var rate in previousRatings)
+                {
+                    _context.UserFilms.Remove(rate);
+                }
+                _context.SaveChanges();
+            }
+            
             var user = GetUser().Where(u => u.Id == userId).FirstOrDefault();
             var film = GetFilms().Where(f => f.Id == filmId).FirstOrDefault();
 

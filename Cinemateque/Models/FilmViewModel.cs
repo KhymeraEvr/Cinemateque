@@ -8,6 +8,7 @@ namespace Cinemateque.Models
     public class FilmViewModel
     {
         public string FilmName { get; set; }
+        public int FilmId { get; set; }
         public string Genre { get; set; }
         public string PremiereDate { get; set; }
         public string Director { get; set; }

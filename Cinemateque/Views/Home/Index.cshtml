@@ -1,26 +1,25 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-
-    <h2>Search</h2>
-    <div class="form-group">
-        <label>Name</label>
-        <input class="form-control" id="nameSearch" aria-describedby="nameSearch" placeholder="Search by name">
-    </div>
-    <div class="form-group">
-        <label>Genre</label>
-        <input class="form-control" id="genreSearch" aria-describedby="genreSearch" placeholder="Search by genre">
-    </div>
-    <div class="form-group">
-        <label>Actors</label>
-        <input class="form-control" id="actorSearch" aria-describedby="actorsSearch" placeholder="Search by actor">
-    </div>
-    <div class="form-group">
-        <label>Director</label>
-        <input class="form-control" id="directorSearch" aria-describedby="directorSearch" placeholder="Search by directir">
-    </div>
-    <button onclick="searchFilm()" class="btn btn-primary">Search</button>
+<h2>Search</h2>
+<div class="form-group">
+    <label>Name</label>
+    <input class="form-control" id="nameSearch" aria-describedby="nameSearch" placeholder="Search by name">
+</div>
+<div class="form-group">
+    <label>Genre</label>
+    <input class="form-control" id="genreSearch" aria-describedby="genreSearch" placeholder="Search by genre">
+</div>
+<div class="form-group">
+    <label>Actors</label>
+    <input class="form-control" id="actorSearch" aria-describedby="actorsSearch" placeholder="Search by actor">
+</div>
+<div class="form-group">
+    <label>Director</label>
+    <input class="form-control" id="directorSearch" aria-describedby="directorSearch" placeholder="Search by directir">
+</div>
+<button onclick="searchFilm()" class="btn btn-primary">Search</button>
 
 <script src="~/js/filmScripts.js"></script>
-<button class="btn btn-primary" onclick="getFilms()">Get Films</button>
+<button type="submit" class="btn btn-primary" onclick="getFilms()">Get Films</button>
 <table id="films" class="table" border="1"></table>
