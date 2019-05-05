@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Cinemateque.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
-using Remotion.Linq.Clauses;
 
 namespace Cinemateque.Data
 {
@@ -41,6 +40,7 @@ namespace Cinemateque.Data
         public IQueryable<UserFilms> GetUserFilms()
         {
             return _context.UserFilms.Include(u => u.Film)
+                .Include( u => u.Film.Director )
                 .Include(u => u.User);
         }
 
@@ -58,6 +58,18 @@ namespace Cinemateque.Data
         public IQueryable<User> GetUser()
         {
             return _context.User.Include( u => u.UserFilms);
+        }
+
+        public IEnumerable<Film> GetHistory(int userId)
+        {
+            var history = GetUserFilms().Where(f => f.UserId == userId && f.Status == nameof(FilmStatus.seen)).Select(f => f.Film).ToArray();
+            return history;
+        }
+
+        public IEnumerable<Film> GetWatchLater(int userId)
+        {
+            var history = GetUserFilms().Where(f => f.UserId == userId && f.Status == nameof(FilmStatus.later)).Select(f => f.Film).ToArray();
+            return history;
         }
 
         public async Task<Film> AddFilm(Film film)
@@ -141,7 +153,7 @@ namespace Cinemateque.Data
                 FilmId = filmId,
                 UserId = userId,
                 Time = DateTime.Now,
-                Status = "later"
+                Status = nameof(FilmStatus.later)
             };
             var res = await _context.UserFilms.AddAsync(newUF);
             await _context.SaveChangesAsync();
@@ -171,7 +183,7 @@ namespace Cinemateque.Data
                 FilmId = filmId,
                 UserId = userId,
                 Time = DateTime.Now,
-                Status = "seen",
+                Status =  nameof(FilmStatus.seen),
                 Rating = rating
             };
             var res = await _context.UserFilms.AddAsync(newUF);
@@ -323,5 +335,13 @@ namespace Cinemateque.Data
         IQueryable<FilmActors> GetFilmActors();
         IQueryable<UserFilms> GetUserFilms();
         IQueryable<Film> GetFilms();
+        IEnumerable<Film> GetHistory(int userId);
+        IEnumerable<Film> GetWatchLater(int userId);
+    }
+
+    public enum FilmStatus
+    {
+        seen,
+        later
     }
 }

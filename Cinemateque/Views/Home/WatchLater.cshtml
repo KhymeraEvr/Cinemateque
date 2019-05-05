@@ -1,0 +1,68 @@
+﻿
+@{
+    ViewData["Title"] = "WatchLater";
+}
+
+<h2>WatchLater</h2>
+
+@model List<Cinemateque.Models.FilmViewModel>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Film Name</th>
+            <th scope="col">Genre</th>
+            <th scope="col">Premiere Date</th>
+            <th scope="col">Director</th>
+            <th scope="col">Rating</th>
+            <th scope="col">User Rating</th>
+            <th scope="col">Actors</th>
+            <th scope="col">Awards</th>
+            <th scope="col">Rate film</th>
+        </tr>
+    </thead>
+
+    @foreach (var film in Model)
+    {
+        <tbody>
+            <tr>
+                <td scope="row">
+                    @film.FilmName
+                </td>
+                <td>@film.Genre</td>
+                <td>@film.PremiereDate</td>
+                <td>@film.Director</td>
+                <td>@film.Rating</td>
+                <td>@film.UserRating</td>
+                <td>
+                    @film.Actors.Aggregate((a, b) => a.ToString() + ", " + b.ToString());
+                </td>
+                <td>
+                    @if (film.Awards.Count() != 0) { film.Awards.Aggregate((a, b) => a.ToString() + ", " + b.ToString()); }
+    
+                </td>
+                <td>
+                    <div class="dropdown">
+                        <select onchange="rate(this)" data-assigned-id="@film.FilmId" class="form-control form-control" id="status">
+                            <option> 1 </option>
+                            <option> 2 </option>
+                            <option> 3 </option>
+                            <option> 4</option>
+                            <option> 5 </option>
+                            <option> 6 </option>
+                            <option> 7 </option>
+                            <option> 8</option>
+                            <option> 9 </option>
+                            <option> 10 </option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <button class="btn" onclick="watchLater(this)" data-assigned-id="@film.FilmId">Watch later</button>
+                </td>
+            </tr>
+        </tbody>
+    }
+</table>
+<script src="~/js/filmScripts.js"></script>

@@ -1,0 +1,57 @@
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+
+namespace Cinemateque.Middleware
+{
+    public class TokenCookieMiddleware
+    {
+        private readonly RequestDelegate _next;
+
+        public TokenCookieMiddleware(RequestDelegate next)
+        {
+            _next = next;
+        }
+
+        public async Task Invoke(HttpContext context)
+        {
+            var token = context.Request.Cookies["Token"];
+            if (token != null)
+            {
+                context.Request.Headers.Append("Authorization", "Bearer " + token);
+                var Jtoken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+                var userId = Convert.ToInt32(Jtoken.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value);
+                var claims = new List<Claim>
+                   {
+                new Claim(ClaimTypes.Name, userId.ToString())
+                     };
+
+                var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+                foreach(var claim in claims)
+                {
+                    identity.AddClaim(claim );
+
+                }
+                var principal = new ClaimsPrincipal(identity);
+ await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            }
+            await _next.Invoke(context);
+        }
+    }
+    public static class TokenMiddlewareExtension
+    {
+        public static IApplicationBuilder UseCookieValidationMidddleware(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<TokenCookieMiddleware>();
+        }
+    }
+}

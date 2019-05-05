@@ -16,7 +16,7 @@ namespace Cinemateque.Data
     public interface IUserService
     {
         Task<User> Authenticate(string username, string password, HttpContext ctx);
-        IEnumerable<Claim> DecodeTokenForClaims(string token);
+        int DecodeTokenForClaims(string token, HttpContext ctx);
     }
 
     public class UserService : IUserService
@@ -82,10 +82,18 @@ namespace Cinemateque.Data
             return user;
         }
 
-        public IEnumerable<Claim> DecodeTokenForClaims(string token)
+        public int DecodeTokenForClaims(string token, HttpContext ctx)
         {
             var Jtoken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-            return Jtoken.Claims;
+            var userId = Convert.ToInt32(Jtoken.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, userId.ToString())
+            };
+
+            var appIdentity = new ClaimsIdentity(claims);
+            ctx.User.AddIdentity(appIdentity);
+            return userId;
         }
     }
 }

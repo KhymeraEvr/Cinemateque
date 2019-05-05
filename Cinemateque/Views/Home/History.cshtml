@@ -1,0 +1,49 @@
+﻿
+@{
+    ViewData["Title"] = "History";
+}
+
+<h2>History</h2>
+
+@model List<Cinemateque.Models.FilmViewModel>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Film Name</th>
+            <th scope="col">Genre</th>
+            <th scope="col">Premiere Date</th>
+            <th scope="col">Director</th>
+            <th scope="col">Rating</th>
+            <th scope="col">User Rating</th>
+            <th scope="col">Actors</th>
+            <th scope="col">Awards</th>
+            <th scope="col">Rate film</th>
+        </tr>
+    </thead>
+
+    @foreach (var film in Model)
+    {
+        <tbody>
+            <tr>
+                <td scope="row">
+                    @film.FilmName
+                </td>
+                <td>@film.Genre</td>
+                <td>@film.PremiereDate</td>
+                <td>@film.Director</td>
+                <td>@film.Rating</td>
+                <td>@film.UserRating</td>
+                <td>
+                    @film.Actors.Aggregate((a, b) => a.ToString() + ", " + b.ToString());
+                </td>
+                <td>
+                    @if (film.Awards.Count() != 0) { film.Awards.Aggregate((a, b) => a.ToString() + ", " + b.ToString()); }
+
+                </td>
+            </tr>
+        </tbody>
+    }
+</table>
+
+<script src="~/js/filmScripts.js"></script>

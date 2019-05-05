@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Cinemateque.Data;
 using Microsoft.AspNetCore.Mvc;
 using Cinemateque.Models;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Cinemateque.Controllers
 {
@@ -16,20 +14,15 @@ namespace Cinemateque.Controllers
     {
         private readonly IFilmService _serv;
         private readonly IUserService _userService;
-        private int? _userId = null;
+        private int _userId;
 
         private int UserID
         {
             get
             {
-                if (_userId == null)
-                {
-                    var tokenCookies = Request.Cookies.FirstOrDefault(c => c.Key == "Token");
-                    var token = tokenCookies.Value;
-                    var claims = _userService.DecodeTokenForClaims(token);
-                    _userId = Convert.ToInt32(claims.FirstOrDefault(c => c.Type == "unique_name")?.Value);
-                }
-                return _userId.Value;
+                var claims = User.Identity as ClaimsIdentity;
+                _userId = Convert.ToInt32(claims.FindFirst(ClaimTypes.Name)?.Value);
+                return _userId;
             }
         }
 
@@ -37,7 +30,6 @@ namespace Cinemateque.Controllers
         {
             _serv = service;
             _userService = userService;
-
         }
 
         public IActionResult Index()
@@ -50,7 +42,6 @@ namespace Cinemateque.Controllers
         {
             var fims = _serv.SearchFilms(model.Name, model.Genre, model.Director, model.Actor).ToList();
             List<FilmViewModel> fs = new List<FilmViewModel>();
-
             foreach (var f in fims)
             {
                 fs.Add(MapToViewModel(f));
@@ -72,7 +63,31 @@ namespace Cinemateque.Controllers
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
             return Ok(user);
-        }        
+        }
+
+        [Route("History")]
+        public IActionResult History()
+        {
+            var history = _serv.GetHistory(UserID);
+            List<FilmViewModel> fs = new List<FilmViewModel>();
+            foreach (var f in history)
+            {
+                fs.Add(MapToViewModel(f));
+            }
+            return View(fs);
+        }
+
+        [Route("WatchLater")]
+        public IActionResult WatchLater()
+        {
+            var later = _serv.GetWatchLater(UserID);
+            List<FilmViewModel> fs = new List<FilmViewModel>();
+            foreach (var f in later)
+            {
+                fs.Add(MapToViewModel(f));
+            }
+            return View(later);
+        }
 
         [HttpGet("addFilmForm")]
         public IActionResult AddFilmForm()
@@ -97,14 +112,14 @@ namespace Cinemateque.Controllers
         {
             return View();
         }
-    
+
 
         [HttpPost]
         public async Task AddFilm([FromForm] AddFilmModel model)
         {
             var actors = model.Actors.Split(" ");
             var awards = model.Awards.Split(" ");
-            
+
             Film newFilm = new Film
             {
                 DirectorId = model.DirectorId,
@@ -114,7 +129,7 @@ namespace Cinemateque.Controllers
             };
             var addedFilm = await _serv.AddFilm(newFilm);
 
-            foreach( var ac in actors )
+            foreach (var ac in actors)
             {
                 var toAdd = new FilmActors
                 {
@@ -124,7 +139,7 @@ namespace Cinemateque.Controllers
                 _serv.AddFilmActor(toAdd).Wait();
             }
 
-            foreach(var rew in awards)
+            foreach (var rew in awards)
             {
                 var toAdd = new FilmReward
                 {
@@ -232,8 +247,8 @@ namespace Cinemateque.Controllers
 
         private FilmViewModel MapToViewModel(Film film)
         {
-           
-            var userFilm = _serv.GetUserFilms().Where(uf => uf.UserId == UserID && uf.FilmId == film.Id ).FirstOrDefault();
+
+            var userFilm = _serv.GetUserFilms().Where(uf => uf.UserId == UserID && uf.FilmId == film.Id).FirstOrDefault();
             return new FilmViewModel
             {
                 FilmId = film.Id,

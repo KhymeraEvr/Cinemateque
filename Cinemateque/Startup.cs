@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cinemateque.Data;
+using Cinemateque.Middleware;
 using Cinemateque.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -30,32 +32,31 @@ namespace Cinemateque
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication()
-.AddCookie(cfg => cfg.SlidingExpiration = true)
-.AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = Configuration["Jwt:Issuer"],
-                    ValidAudience = Configuration["Jwt:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                    .AddCookie();
+                    
 
-                };
-                options.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        context.Token = context.Request.Cookies["Token"];
-                        return Task.CompletedTask;
-                    }
-                };
-            });
 
-            services.Configure<CookiePolicyOptions>(options =>
+                //var key = Encoding.ASCII.GetBytes(Configuration["JwtKey"]);
+                //services.AddAuthentication(x =>
+                //{
+                //    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                //    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                //})
+                //.AddJwtBearer(x =>
+                //{
+                //    x.RequireHttpsMetadata = false;
+                //    x.SaveToken = true;
+                //    x.TokenValidationParameters = new TokenValidationParameters
+                //    {
+                //        ValidateIssuerSigningKey = true,
+                //        IssuerSigningKey = new SymmetricSecurityKey(key),
+                //        ValidateIssuer = false,
+                //        ValidateAudience = false
+                //    };
+                //});
+
+                services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
@@ -66,27 +67,7 @@ namespace Cinemateque
                 options.UseSqlServer(
                     "Server = BF2142FOREVA\\TEW_SQLEXPRESS; Database = Cinemateque; Trusted_Connection = True;"));
 
-            //var key = Encoding.ASCII.GetBytes(Configuration["Secret"]);
-            //services.AddAuthentication(x =>
-            //{
-            //    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            //    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            //})
-            //.AddJwtBearer(x =>
-            //{
-            //    x.RequireHttpsMetadata = false;
-            //    x.SaveToken = true;
-            //    x.TokenValidationParameters = new TokenValidationParameters
-            //    {
-            //        ValidateIssuerSigningKey = true,
-            //        IssuerSigningKey = new SymmetricSecurityKey(key),
-            //        ValidateIssuer = false,
-            //        ValidateAudience = false
-            //    };
-            //});
-
-            // configure DI for application services
-
+      
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IFilmService, FilmService>();
             services.AddSingleton(Configuration);
@@ -114,9 +95,8 @@ namespace Cinemateque
                .AllowAnyOrigin()
                .AllowAnyMethod()
                .AllowAnyHeader());
-
             app.UseAuthentication();
-
+            app.UseCookieValidationMidddleware();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
