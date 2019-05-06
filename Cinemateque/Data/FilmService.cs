@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cinemateque.DataAccess;
+using Cinemateque.DataAccess.Models;
 using Cinemateque.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;

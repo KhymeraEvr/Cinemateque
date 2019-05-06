@@ -37,7 +37,7 @@
                     @if (!User.Identity.IsAuthenticated)
                     {<li style="float:right"><a asp-controller="Home" asp-action="Login">SignIn</a></li>}
                     else
-                    {<li style="float:right"><a asp-controller="Home" asp-action="Login">SignOut</a></li>}
+                    {<li style="float:right"><a asp-controller="Users" asp-action="Logout">SignOut</a></li>}
                 </ul>
             </div>
         </div>

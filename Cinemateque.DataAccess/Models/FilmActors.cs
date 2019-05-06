@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Cinemateque.Models
+namespace Cinemateque.DataAccess.Models
 {
     public partial class FilmActors
     {

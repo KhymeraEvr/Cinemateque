@@ -1,4 +1,5 @@
-﻿using Cinemateque.Models;
+﻿using Cinemateque.DataAccess.Models;
+using Cinemateque.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -37,7 +38,7 @@ namespace Cinemateque.Data
                 UserName = username,
                 Passwrod = password,
                 Role = "User"
-            };
+            };                     
 
             var result = await _serv.Context.User.AddAsync(user);
             await _serv.Context.SaveChangesAsync();
@@ -48,13 +49,11 @@ namespace Cinemateque.Data
         {
             var user = _serv.Context.User.SingleOrDefault(x => x.UserName == username && x.Passwrod == password);
 
-            // return null if user not found
             if (user == null)
             {
                 user = await Register(username, password);
             }
 
-            // authentication successful so generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_config["Secret"]);
             var tokenDescriptor = new SecurityTokenDescriptor

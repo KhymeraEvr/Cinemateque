@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Cinemateque.Models;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Cinemateque.DataAccess.Models;
 
 namespace Cinemateque.Controllers
 {
@@ -107,11 +108,7 @@ namespace Cinemateque.Controllers
             return Ok(_serv.Context.Director.ToList());
         }
 
-        [HttpGet("Login")]
-        public IActionResult Login()
-        {
-            return View();
-        }
+
 
 
         [HttpPost]
