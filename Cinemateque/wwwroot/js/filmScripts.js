@@ -28,6 +28,11 @@ function getDirectors() {
     });
 }
 
+function getDate() {
+   var date = document.getElementById("startDate").value;
+   return date;
+}
+
 
 function watchLater(data) {
     var filmId = $(data).data('assigned-id');

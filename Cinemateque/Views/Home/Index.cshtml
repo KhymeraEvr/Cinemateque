@@ -1,25 +1,46 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+   ViewData["Title"] = "Home Page";
 }
 <div id="maybe">
-    <h2>Search</h2>
-    <div class="form-group">
-        <label>Name</label>
-        <input class="form-control" id="nameSearch" aria-describedby="nameSearch" placeholder="Search by name">
-    </div>
-    <div class="form-group">
-        <label>Genre</label>
-        <input class="form-control" id="genreSearch" aria-describedby="genreSearch" placeholder="Search by genre">
-    </div>
-    <div class="form-group">
-        <label>Actors</label>
-        <input class="form-control" id="actorSearch" aria-describedby="actorsSearch" placeholder="Search by actor">
-    </div>
-    <div class="form-group">
-        <label>Director</label>
-        <input class="form-control" id="directorSearch" aria-describedby="directorSearch" placeholder="Search by directir">
-    </div>
-    <button onclick="searchFilm()" class="btn btn-primary">Search</button>
+   <h2>Search</h2>
+   <div class="form-group">
+      <label>Name</label>
+      <input class="form-control" id="nameSearch" aria-describedby="nameSearch" placeholder="Search by name">
+   </div>
+   <div class="form-group">
+      <label>Genre</label>
+      <input class="form-control" id="genreSearch" aria-describedby="genreSearch" placeholder="Search by genre">
+   </div>
+   <div class="form-group">
+      <label>Actors</label>
+      <input class="form-control" id="actorSearch" aria-describedby="actorsSearch" placeholder="Search by actor">
+   </div>
+   <div class="form-group">
+      <label>Director</label>
+      <input class="form-control" id="directorSearch" aria-describedby="directorSearch" placeholder="Search by directir">
+   </div>
+   <button onclick="searchFilm()" class="btn btn-primary">Search</button>
+   <button asp-controller="Home" asp-action="GetSuggestion" class="btn btn-primary">GetSuggestion</button>
 
-    <script src="~/js/filmScripts.js"></script>
+   <h2>Statistics</h2>
+   <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+         Statistics
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+         <input type="date" class="form-control dropdown-item" id="startDate" placeholder="StartDate">
+         <a asp-controller="Home" asp-action="GetTopRatedActor" asp-route-date="getDate()" class="dropdown-item">GetTopRatedActor</a>
+         <a asp-controller="Home" asp-action="GetBestDirector" class="dropdown-item">GetBestDirector</a>
+         <a asp-controller="Home" asp-action="GetTopRatedDiretcor" class="dropdown-item">GetTopRatedDiretcor</a>
+         <a asp-controller="Home" asp-action="GetTopRatedFilm" class="dropdown-item">GetTopRatedFilm</a>
+         <a asp-controller="Home" asp-action="GetBestFilm" class="dropdown-item">GetBestFilm</a>
+         <a asp-controller="Home" asp-action="GetAwardedFilm" class="dropdown-item">GetAwardedFilm</a>
+         <a asp-controller="Home" asp-action="GetMostPopularGenre" class="dropdown-item">GetMostPopularGenre</a>
+         <a asp-controller="Home" asp-action="GetTopReward" class="dropdown-item">GetTopReward</a>
+         <a asp-controller="Home" asp-action="GetMostActiveUser" class="dropdown-item">GetMostActiveUser</a>
+         <a asp-controller="Home" asp-action="GetBestActor" class="dropdown-item">GetBestActor</a>
+      </div>
+   </div>
+
+   <script src="~/js/filmScripts.js"></script>
 </div>
