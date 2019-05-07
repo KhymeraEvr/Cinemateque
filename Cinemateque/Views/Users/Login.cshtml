@@ -18,7 +18,7 @@
       <form asp-controller="Users" asp-action="Authenticate">
          <h3>Log In</h3>
          <label>Input email</label><br />
-         <input asp-for="Username" type="email" class="form-control" id="emailLogin" /> <br /><br />
+         <input asp-for="Username" type="text" class="form-control" id="emailLogin" /> <br /><br />
          <label>Input Password</label><br />
          <input asp-for="Password" type="password" class="form-control" id="passwordLogin" /><br /><br />
          <input asp-controller="Users" asp-action="Authenticate" class="btn btn-primary" type="submit" id="submitLogin" value="Login" />

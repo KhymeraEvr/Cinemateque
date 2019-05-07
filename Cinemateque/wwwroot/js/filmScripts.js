@@ -13,6 +13,66 @@
     });
 }
 
+function getFilms() {
+    var uri = "films"
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            getTable("films", data)
+        }
+    });
+}
+
+function getUsers() {
+    var uri = "user"
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            getTable("Users", data)
+        }
+    });
+}
+
+function getUserFilms() {
+    var uri = "UserFilms"
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            getTable("UserFilms", data)
+        }
+    });
+}
+
+function getAwards() {
+    var uri = "awards"
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            getTable("awards", data)
+        }
+    });
+}
+
 function getDirectors() {
     var uri = "directors"
     $.ajax({
@@ -24,6 +84,137 @@ function getDirectors() {
         },
         success: function (data) {
             getTable("directors", data)
+        }
+    });
+}
+
+function getBestActor() {
+    var date = document.getElementById("startDate").value
+    var uri = "bestActor/" + date
+
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            document.getElementById("bestActorName").innerHTML = data.name
+            document.getElementById("bestActorRate").innerHTML = data.rate
+            document.getElementById("bestActor").style.display = "block"
+        }
+    });
+}
+
+function getTopActor() {
+    var uri = "ratedActor"
+
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            document.getElementById("topActorName").innerHTML = data.name
+            document.getElementById("topActorRate").innerHTML = data.rate
+            document.getElementById("topActor").style.display = "block"
+        }
+    });
+}
+
+function getBestDirector() {
+    var date = document.getElementById("startDate").value
+    var uri = "bestDirector/" + date
+
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            document.getElementById("bestDirectorName").innerHTML = data.name
+            document.getElementById("bestDirectorRate").innerHTML = data.rate
+            document.getElementById("bestDirector").style.display = "block"
+        }
+    });
+}
+
+function getTopDirector() {
+    var date = document.getElementById("startDate").value
+    var uri = "ratedDirector"
+
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            document.getElementById("topDirectorName").innerHTML = data.name
+            document.getElementById("topDirectorRate").innerHTML = data.rate
+            document.getElementById("topDirector").style.display = "block"
+        }
+    });
+}
+
+
+
+function getPopGenre() {
+    var date = document.getElementById("startDate").value
+    var uri = "popGenre/" + date
+
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            document.getElementById("popularGenreName").innerHTML = data.name            
+            document.getElementById("popularGenre").style.display = "block"
+        }
+    });
+}
+
+function getActiveUser() {
+    var date = document.getElementById("startDate").value
+    var uri = "activeUser/" + date
+
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            document.getElementById("activeUserName").innerHTML = data.name
+            document.getElementById("activeUser").style.display = "block"
+        }
+    });
+}
+
+function getTopReward() {
+    var date = document.getElementById("startDate").value
+    var uri = "topReward/" + date
+
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            document.getElementById("topRewardName").innerHTML = data.name
+            document.getElementById("topReward").style.display = "block"
         }
     });
 }

@@ -22,7 +22,9 @@ namespace Cinemateque.Migrations
 
             modelBuilder.Entity("Cinemateque.Models.Actor", b =>
                 {
-                    b.Property<int>("Id");
+                    b.Property<int>("Id")
+                                            .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ActorName")
                         .HasMaxLength(30);
@@ -36,7 +38,9 @@ namespace Cinemateque.Migrations
 
             modelBuilder.Entity("Cinemateque.Models.Director", b =>
                 {
-                    b.Property<int>("Id");
+                    b.Property<int>("Id")
+                                            .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("DirectorName")
                         .HasMaxLength(50);

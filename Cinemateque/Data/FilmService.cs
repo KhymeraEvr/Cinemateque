@@ -42,7 +42,7 @@ namespace Cinemateque.Data
         public IQueryable<UserFilms> GetUserFilms()
         {
             return _context.UserFilms.Include(u => u.Film)
-                .Include( u => u.Film.Director )
+                .Include(u => u.Film.Director)
                 .Include(u => u.User);
         }
 
@@ -54,12 +54,12 @@ namespace Cinemateque.Data
 
         public IQueryable<FilmReward> GetFilmRewards()
         {
-            return _context.FilmReward.Include(f => f.Film);             
+            return _context.FilmReward.Include(f => f.Film);
         }
 
         public IQueryable<User> GetUser()
         {
-            return _context.User.Include( u => u.UserFilms);
+            return _context.User.Include(u => u.UserFilms);
         }
 
         public IEnumerable<Film> GetHistory(int userId)
@@ -74,11 +74,70 @@ namespace Cinemateque.Data
             return history;
         }
 
-        public async Task<Film> AddFilm(Film film)
+        public async Task<Film> AddFilm(AddFilmModel model)
         {
-            var addedFilm = _context.Film.Add(film);
-            await _context.SaveChangesAsync();
-            return addedFilm.Entity;
+            var actors = model.Actors.Split(", ");
+            var awards = model.Awards.Split(", ");
+
+            if (!_context.Director.Any(d => d.DirectorName == model.Director))
+            {
+                _context.Director.Add(new Director
+                {
+                    DirectorName = model.Director
+                });
+                await _context.SaveChangesAsync();
+            }
+
+            var directorID = _context.Director.First(d => d.DirectorName == model.Director).Id;
+
+            Film newFilm = new Film
+            {
+                DirectorId = directorID,
+                FilmName = model.FilmName,
+                Genre = model.Genre,
+                PremiereDate = model.PremiereDate
+            };
+
+            var filmExist = _context.Film.Where(f => f.FilmName == newFilm.FilmName).FirstOrDefault();
+            if (filmExist != null) _context.Film.Remove(filmExist);
+
+            var addedFilm = _context.Film.Add(newFilm).Entity;
+
+
+            foreach (var ac in actors)
+            {
+                int actorId;
+                if (!_context.Actor.Any(a => a.ActorName == ac))
+                {
+                    var newAct = _context.Actor.Add(new Actor
+                    {
+                        ActorName = ac
+                    });
+                    await _context.SaveChangesAsync();
+                }
+                actorId = _context.Actor.Where(a => a.ActorName == ac).First().Id;
+
+                var toAdd = new FilmActors
+                {
+                    ActorId = actorId,
+                    FilmId = addedFilm.Id
+                };
+                AddFilmActor(toAdd).Wait();
+            }
+
+            foreach (var rew in awards)
+            {
+                var toAdd = new FilmReward
+                {
+                    Date = addedFilm.PremiereDate,
+                    RewardName = rew,
+                    FilmId = addedFilm.Id
+                };
+                AddAwards(toAdd).Wait();
+            }
+
+            var res = await _context.SaveChangesAsync();
+            return addedFilm;
         }
 
         public async Task<FilmReward> AddAwards(FilmReward film)
@@ -166,17 +225,22 @@ namespace Cinemateque.Data
         {
             if (rating == 0) return null;
             var previousRatings = GetUserFilms().Where(f => f.UserId == userId && f.FilmId == filmId);
-            if( previousRatings != null )
+            if (previousRatings != null)
             {
-                foreach(var rate in previousRatings)
+                foreach (var rate in previousRatings)
                 {
                     _context.UserFilms.Remove(rate);
                 }
                 _context.SaveChanges();
             }
-            
+
             var user = GetUser().Where(u => u.Id == userId).FirstOrDefault();
             var film = GetFilms().Where(f => f.Id == filmId).FirstOrDefault();
+
+            var filmReviews = GetUserFilms().Where(u => u.FilmId == film.Id).Count();
+            var updatedRate = (film.Rating ?? 0 + rating) / (filmReviews + 1);
+
+            film.Rating = updatedRate;
 
             UserFilms newUF = new UserFilms
             {
@@ -185,9 +249,12 @@ namespace Cinemateque.Data
                 FilmId = filmId,
                 UserId = userId,
                 Time = DateTime.Now,
-                Status =  nameof(FilmStatus.seen),
+                Status = nameof(FilmStatus.seen),
                 Rating = rating
             };
+           var resUpdate =  _context.Film.Update(film);
+            await _context.SaveChangesAsync();
+
             var res = await _context.UserFilms.AddAsync(newUF);
             await _context.SaveChangesAsync();
             return res.Entity;
@@ -210,8 +277,8 @@ namespace Cinemateque.Data
                 .GroupBy(g => g.Actor).OrderByDescending(f => f.Count()).Take(3);
             var mostActiveActors = mostActive.Select(f => f.Key).ToList();
             var mostActiveActorFilms = from ac in mostActiveActors
-                join film in GetFilmActors() on ac.Id equals film.ActorId
-                select new {ac.Id, film.Film.Rating};
+                                       join film in GetFilmActors() on ac.Id equals film.ActorId
+                                       select new { ac.Id, film.Film.Rating };
             var bestActorId = mostActiveActorFilms.Where(a => a.Rating == mostActiveActorFilms.Max(f => f.Rating))
                 .FirstOrDefault().Id;
             var bestActor = _context.Actor.Where(a => a.Id == bestActorId).FirstOrDefault();
@@ -234,8 +301,8 @@ namespace Cinemateque.Data
                 .GroupBy(g => g.DirectorId).OrderByDescending(f => f.Count()).Take(3);
             var mostActiveDirector = mostActive.Select(f => f.Key).ToList();
             var mostActiveDirectorFilms = from ac in mostActiveDirector
-                join dir in recent on ac equals dir.DirectorId
-                select new {ac, dir.Rating};
+                                          join dir in recent on ac equals dir.DirectorId
+                                          select new { ac, dir.Rating };
             var bestDirectorId = mostActiveDirectorFilms
                 .Where(a => a.Rating == mostActiveDirectorFilms.Max(f => f.Rating)).FirstOrDefault().ac;
             var bestDirector = _context.Director.Where(a => a.Id == bestDirectorId).FirstOrDefault();
@@ -260,18 +327,18 @@ namespace Cinemateque.Data
             if (starTime == null) starTime = DateTime.Now.AddYears(-1);
             var recent = GetFilms().OrderByDescending(f => f.PremiereDate).Where(f => f.PremiereDate > starTime);
             var views = from rec in recent
-                join view in GetUserFilms() on rec.Id equals view.FilmId
-                select view;
+                        join view in GetUserFilms() on rec.Id equals view.FilmId
+                        select view;
             var topIds = views.GroupBy(f => f.FilmId).OrderByDescending(g => g.Count()).Take(10).Select(g => g.Key);
             var topRatings = from id in topIds
-                join film in recent on id equals film.Id
-                select new {id, film.Rating};
+                             join film in recent on id equals film.Id
+                             select new { id, film.Rating };
 
             var bestFilmsIds = topRatings.Where(rat => rat.Rating == topRatings.Max(r => r.Rating)).Select(f => f.id);
 
             var bestFilns = from id in bestFilmsIds
-                join film in recent on id equals film.Id
-                select film;
+                            join film in recent on id equals film.Id
+                            select film;
 
             return bestFilns.ToArray();
         }
@@ -315,7 +382,7 @@ namespace Cinemateque.Data
     {
         CinematequeContext Context { get; }
         IEnumerable<Film> SearchFilms(string name, string genre, string director, string actor);
-        Task<Film> AddFilm(Film film);
+        Task<Film> AddFilm(AddFilmModel film);
         Film GetSuggestion(string username);
         Task<UserFilms> AddWatchLater(int userId, int filmId);
         Task<UserFilms> AddWatched(int userId, int filmId, int rating);

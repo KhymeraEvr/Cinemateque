@@ -1,0 +1,23 @@
+﻿
+@{
+    ViewData["Title"] = "Library";
+}
+
+<h2>Library</h2>
+
+<ul>
+    <li> <a onclick="getActors()" class="dropdown-item">Actors</a>                                                      </li>
+    <li> <a onclick="getDirectors()" class="dropdown-item">Directors</a>                                                         </li>
+    <li> <a onclick="getAwards()" class="dropdown-item">Awards</a>                                                   </li>
+    <li> <a onclick="getFilms()" class="dropdown-item">Films</a>                                                   </li>
+    <li> <a onclick="getUsers()" class="dropdown-item">Users</a>                                                   </li>
+    <li> <a onclick="getUserFilms()" class="dropdown-item">UserFilms</a>                                                   </li>
+</ul>
+
+<table id="actors" class="table" border="1"></table>
+<table id="films" class="table" border="1"></table>
+<table id="Users" class="table" border="1"></table>
+<table id="UserFilms" class="table" border="1"></table>
+<table id="awards" class="table" border="1"></table>
+<table id="directors" class="table" border="1"></table>
+<script src="~/js/filmScripts.js"></script>

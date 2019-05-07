@@ -22,28 +22,24 @@ namespace Cinemateque.DataAccess
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserFilms> UserFilms { get; set; }
 
-//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//        {
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
 //            if (!optionsBuilder.IsConfigured)
 //            {
 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
 //                optionsBuilder.UseSqlServer("Server=BF2142FOREVA\\TEW_SQLEXPRESS;Database=Cinemateque;Trusted_Connection=True;");
 //            }
-//        }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Actor>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.ActorName).HasMaxLength(30);
             });
 
             modelBuilder.Entity<Director>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.DirectorName).HasMaxLength(50);
             });
 
