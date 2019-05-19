@@ -17,13 +17,13 @@ namespace Cinemateque.Controllers
       }
 
       [HttpPost( "authenticate" )]
-      public async Task<IActionResult> Authenticate( [FromForm]AuthModel userParam )
+      public async Task<IActionResult> Authenticate( [FromBody]AuthModel userParam )
       {
          var user = await _userService.Authenticate( userParam.Username, userParam.Password, this.HttpContext );
 
          if ( user == null )
             return BadRequest( new { message = "Username or password is incorrect" } );
-            return RedirectToAction("Index", "Home");
+         return Ok(user);
       }
 
       [HttpGet( "Login" )]

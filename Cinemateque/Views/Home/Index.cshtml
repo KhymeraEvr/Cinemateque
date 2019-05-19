@@ -1,6 +1,13 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+
+@if (User.IsInRole("Admin"))
+{
+    <a>dsjkfhdskjlghkjljhcklvhbkljhdfslkgsfgfdg</a>
+
+}
+
 <div id="maybe">
     <h2>Search</h2>
     <div class="form-group">
@@ -20,7 +27,7 @@
         <input class="form-control" id="directorSearch" aria-describedby="directorSearch" placeholder="Search by directir">
     </div>
     <button onclick="searchFilm()" class="btn btn-primary">Search</button>
-    <button asp-controller="Home" asp-action="GetSuggestion" class="btn btn-primary">GetSuggestion</button>
+    <a asp-controller="Home" asp-action="GetSuggestion"  class="btn btn-primary">GetSuggestion</a>
 
     <h2>Statistics</h2>
     <div class="dropdown">

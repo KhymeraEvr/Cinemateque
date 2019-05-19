@@ -22,7 +22,7 @@ namespace Cinemateque.Controllers
             get
             {
                 var claims = User.Identity as ClaimsIdentity;
-                _userId = Convert.ToInt32(claims.FindFirst(ClaimTypes.Name)?.Value);
+                _userId = _userService.DecodeTokenForClaims(Request.Cookies["Token"],HttpContext);
                 return _userId;
             }
         }
@@ -71,7 +71,7 @@ namespace Cinemateque.Controllers
                 fs.Add(MapToViewModel(f));
             }
             return View(fs);
-        }
+        }        
 
         [Route("WatchLater")]
         public IActionResult WatchLater()
@@ -82,7 +82,7 @@ namespace Cinemateque.Controllers
             {
                 fs.Add(MapToViewModel(f));
             }
-            return View(later);
+            return View(fs);
         }
 
         [Route("AddFilmForm")]
@@ -118,19 +118,19 @@ namespace Cinemateque.Controllers
         [HttpGet("Home/user")]
         public IActionResult GetUsers()
         {
-            return Ok(_serv.Context.User.ToList().Select( a => new { a.Id, a.UserName, a.Rating, a.Role }));
+            return Ok(_serv.GetUser().ToList().Select( a => new { a.Id, a.UserName, a.Rating, a.Role }));
         }
 
         [HttpGet("Home/UserFilms")]
         public IActionResult GetUserFlms()
         {
-            return Ok(_serv.Context.UserFilms.ToList().Select( a => new { a.Id, a.Film.FilmName,a.User.UserName, a.Status, a.Rating, a.Time }));
+            return Ok(_serv.GetUserFilms().ToList().Select( a => new { a.Id, a.Film.FilmName,a.User.UserName, a.Status, a.Rating, a.Time }));
         }
 
         [HttpGet("Home/awards")]
         public IActionResult GetAwards()
         {
-            return Ok(_serv.Context.FilmReward.ToList().Select( a => new { a.Id, a.RewardName, a.Film.FilmName, a.Date }));
+            return Ok(_serv.GetFilmRewards().ToList().Select( a => new { a.Id, a.RewardName, a.Film.FilmName, a.Date }));
         }
 
 
@@ -149,11 +149,11 @@ namespace Cinemateque.Controllers
             return Ok(_serv.UpdateFilm(model));
         }
 
-        [HttpGet("suggets")]
+
         public IActionResult GetSuggestion()
         {
             List<FilmViewModel> fs = new List<FilmViewModel>();
-            var film = MapToViewModel(_serv.GetSuggestion(HttpContext.User.Identity.Name));
+            var film = MapToViewModel(_serv.GetSuggestion( UserID ));
             fs.Add(film);
 
             return View("FilmTable", fs);
@@ -169,6 +169,13 @@ namespace Cinemateque.Controllers
         public IActionResult AddWatched([FromRoute] int filmId, [FromRoute] int rating)
         {
             return Ok(_serv.AddWatched(Convert.ToInt32(UserID), filmId, rating).Id);
+        }
+
+        [HttpDelete("delete/{filmId}")]
+        public IActionResult DeleteFilm([FromRoute] int filmid)
+        {
+            _serv.DeleteFilm(filmid);
+            return Ok();
         }
 
         [HttpGet("bestActor/{date}")]

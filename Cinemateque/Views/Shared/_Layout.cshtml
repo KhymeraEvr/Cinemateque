@@ -31,16 +31,28 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li><a asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-controller="Home" asp-action="AddFilmForm">AddFilm</a></li>
-                    <li><a asp-controller="Home" asp-action="History">History</a></li>
-                    <li><a asp-controller="Home" asp-action="WatchLater">WatchLater</a></li>
-                    <li><a asp-controller="Home" asp-action="Library">Library</a></li>
-                    @if (!User.Identity.IsAuthenticated)
+                    @if (User.Identity.IsAuthenticated)
                     {
-                        <li style="float:right"><a asp-controller="Users" asp-action="Login">SignIn</a></li>}
-                    else
-                    {
-                        <li style="float:right"><a asp-controller="Users" asp-action="Logout">SignOut</a></li>}
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li><a asp-controller="Home" asp-action="AddFilmForm">AddFilm</a></li>
+                        }
+                        <li><a asp-controller="Home" asp-action="History">History</a></li>
+                        <li><a asp-controller="Home" asp-action="WatchLater">WatchLater</a></li>
+                        <li><a asp-controller="Home" asp-action="Library">Library</a></li>
+                    }
+                </ul>
+                <ul class="nav navbar-nav" style="float:right; margin:0px">
+                    <li>
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <a asp-controller="Users" asp-action="Login">SignIn</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Users" asp-action="Logout">SignOut</a>
+                        }
+                    </li>
                 </ul>
             </div>
         </div>
