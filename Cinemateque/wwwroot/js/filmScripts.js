@@ -201,6 +201,23 @@ function getActiveUser() {
     });
 }
 
+function getFavorites() {
+    var uri = "favorites";
+
+    $.ajax({
+        type: "GET",
+        url: uri,
+        beforeSend: function (xhr) {
+            var token = getCookie("Token");
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        },
+        success: function (data) {
+            document.getElementById("favorites").innerHTML = "Your favorite actor -  " + data.actor + " director -   " + data.director + "  genre -   " + data.genre;
+        }
+    });
+}
+
+
 function getTopReward() {
     var date = document.getElementById("startDate").value
     var uri = "topReward/" + date

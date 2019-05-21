@@ -157,10 +157,13 @@ namespace Cinemateque.Data
             return addedFilm.Entity;
         }
 
-        public Film GetSuggestion(int username)
+        public IEnumerable<Film> GetSuggestion(int username)
         {
             var user = GetUser().Where(u => u.Id == username);
-            var userFilms = GetUserFilms().Where(f => f.User.Id == username).Select(f => f.Film).ToList();
+            var userFilms = GetUserFilms().Where(f => f.User.Id == username).Select(f => f.Film)
+                .Include(f => f.Director)
+                .Include(f => f.FilmActors)
+                .ThenInclude(f => f.Actor).ToList();
 
             var favoriteGenre = userFilms.GroupBy(f => f.Genre)
                 .OrderByDescending(g => g.Count()).First().Select(f => f.Genre).First();
@@ -177,32 +180,32 @@ namespace Cinemateque.Data
 
             Random rd = new Random();
 
-            if (filmsList != null || filmsList.Count() == 0)
+            if (filmsList != null && filmsList.Count() != 0)
             {
                 var random = rd.Next(0, filmsList.Count());
-                return filmsList[random];
+                return filmsList.Take(5);
             }
 
             interestingFilms = SearchFilms(null, favoriteGenre, favoriteDirector, null);
             filmsList = interestingFilms.Except(userFilms).ToList();
 
-            if (filmsList != null || filmsList.Count() == 0)
+            if (filmsList != null && filmsList.Count() != 0)
             {
                 var random = rd.Next(0, filmsList.Count());
-                return filmsList[random];
+                return filmsList.Take(5);
             }
 
             interestingFilms = SearchFilms(null, favoriteGenre, null, null);
             filmsList = interestingFilms.Except(userFilms).ToList();
 
-            if (filmsList != null || filmsList.Count() == 0)
+            if (filmsList != null && filmsList.Count() != 0)
             {
                 var random = rd.Next(0, filmsList.Count());
-                return filmsList[random];
+                return filmsList.Take(5);
             }
 
             var randomF = rd.Next(0, filmsList.Count());
-            return GetFilms().ToList()[randomF];
+            return GetFilms().Take(5);
         }
 
         public async Task<UserFilms> AddWatchLater(int userId, int filmId)
@@ -250,9 +253,14 @@ namespace Cinemateque.Data
             }
             else
             {
-                updatedRate = (film.Rating.Value + rating) / (filmReviews + 1);
-
+                updatedRate = (film.Rating.Value * filmReviews + rating) / (filmReviews + 1);
             }
+
+            if (previousRatings.Count() != 0 && filmReviews == 1)
+            {
+                updatedRate = rating;
+            }
+
 
             film.Rating = updatedRate;
 
@@ -285,16 +293,16 @@ namespace Cinemateque.Data
         public Actor GetBestActor(DateTime? starTime)
         {
             if (starTime == null) starTime = DateTime.Now.AddYears(-1);
-            var recent = GetFilms().OrderByDescending(f => f.PremiereDate).Where(f => f.PremiereDate > starTime);
+            var recent = GetFilms().OrderByDescending(f => f.PremiereDate).Where(f => f.PremiereDate > starTime).Take(100);
             var mostActive = recent.SelectMany(f => f.FilmActors)
-                .GroupBy(g => g.Actor).OrderByDescending(f => f.Count()).Take(3);
+                .GroupBy(g => g.ActorId).OrderByDescending(f => f.Count()).Take(3);
             var mostActiveActors = mostActive.Select(f => f.Key).ToList();
             var mostActiveActorFilms = from ac in mostActiveActors
-                                       join film in GetFilmActors() on ac.Id equals film.ActorId
-                                       select new { ac.Id, film.Film.Rating };
+                                       join film in GetFilmActors() on ac equals film.ActorId
+                                       select new { ac, film.Film.Rating };
             var bestActorId = mostActiveActorFilms.Where(a => a.Rating == mostActiveActorFilms.Max(f => f.Rating))
-                .FirstOrDefault().Id;
-            var bestActor = _context.Actor.Where(a => a.Id == bestActorId).FirstOrDefault();
+                .FirstOrDefault();
+            var bestActor = _context.Actor.Where(a => a.Id == bestActorId.ac).FirstOrDefault();
             return bestActor;
         }
 
@@ -338,11 +346,11 @@ namespace Cinemateque.Data
         public IEnumerable<Film> GetBestFilm(DateTime? starTime)
         {
             if (starTime == null) starTime = DateTime.Now.AddYears(-1);
-            var recent = GetFilms().OrderByDescending(f => f.PremiereDate).Where(f => f.PremiereDate > starTime);
+            var recent = GetFilms().OrderByDescending(f => f.PremiereDate).Where(f => f.PremiereDate > starTime).Take(100);
             var views = from rec in recent
                         join view in GetUserFilms() on rec.Id equals view.FilmId
                         select view;
-            var topIds = views.GroupBy(f => f.FilmId).OrderByDescending(g => g.Count()).Take(10).Select(g => g.Key);
+            var topIds = views.GroupBy(f => f.FilmId).OrderByDescending(g => g.Count()).Take(10).Select(g => g.Key).ToList();
             var topRatings = from id in topIds
                              join film in recent on id equals film.Id
                              select new { id, film.Rating };
@@ -359,7 +367,7 @@ namespace Cinemateque.Data
         public Film GetAwardedFilm(DateTime? starTime)
         {
             if (starTime == null) starTime = DateTime.Now.AddYears(-1);
-            var recent = GetFilms().OrderByDescending(f => f.PremiereDate).Where(f => f.PremiereDate > starTime);
+            var recent = GetFilms().OrderByDescending(f => f.PremiereDate).Where(f => f.PremiereDate > starTime).Take(100);
             var topFilm = recent.OrderByDescending(f => f.FilmReward.Count).First();
             return topFilm;
         }
@@ -367,7 +375,7 @@ namespace Cinemateque.Data
         public string GetMostPopularGenre(DateTime? starTime)
         {
             if (starTime == null) starTime = DateTime.Now.AddYears(-1);
-            var recent = GetUserFilms().OrderByDescending(f => f.Time).Where(f => f.Time > starTime);
+            var recent = GetUserFilms().OrderByDescending(f => f.Time).Where(f => f.Time > starTime).Take(100);
             var topGenre = recent.GroupBy(r => r.Film.Genre).OrderByDescending(g => g.Count()).First().Key;
             return topGenre;
         }
@@ -375,7 +383,7 @@ namespace Cinemateque.Data
         public FilmReward GetTopReward(DateTime? starTime)
         {
             if (starTime == null) starTime = DateTime.Now.AddYears(-1);
-            var recent = GetFilms().OrderByDescending(f => f.PremiereDate).Where(f => f.PremiereDate > starTime);
+            var recent = GetFilms().OrderByDescending(f => f.PremiereDate).Where(f => f.PremiereDate > starTime).Take(100);
             var awards = recent.SelectMany(f => f.FilmReward).GroupBy(r => r.RewardName);
             var topRate = awards.Where(g =>
                 g.Average(aw => aw.Film.Rating) == awards.Max(gg => gg.Average(asdf => asdf.Film.Rating))).First().Key;
@@ -404,6 +412,33 @@ namespace Cinemateque.Data
                 await _context.SaveChangesAsync();
             }
         }
+
+        public Favorites GetFavorites(int userID)
+        {
+            var user = GetUser().Where(u => u.Id == userID);
+            var userFilms = GetUserFilms().Where(f => f.User.Id == userID).Select(f => f.Film)
+                .Include(f => f.Director)
+                .Include(f => f.FilmActors)
+                .ThenInclude(f => f.Actor).ToList();
+
+            var favoriteGenre = userFilms.GroupBy(f => f.Genre)
+                .OrderByDescending(g => g.Count()).First().Select(f => f.Genre).First();
+
+            var favoriteDirector = userFilms.GroupBy(f => f.Director.DirectorName)
+                .OrderByDescending(g => g.Count()).First().Select(f => f.Director.DirectorName).First();
+
+            var favoriteActor = userFilms.SelectMany(f => f.FilmActors)
+                .GroupBy(a => a.Actor.Id).OrderByDescending(a => a.Count()).First()
+                .Select(f => f.Actor.ActorName).First();
+
+            var res = new Favorites
+            {
+                Actor = favoriteActor,
+                Director = favoriteDirector,
+                Genre = favoriteGenre
+            };
+            return res;
+        }
     }
 
 
@@ -412,7 +447,7 @@ namespace Cinemateque.Data
         CinematequeContext Context { get; }
         IEnumerable<Film> SearchFilms(string name, string genre, string director, string actor);
         Task<Film> AddFilm(AddFilmModel film);
-        Film GetSuggestion(int username);
+        IEnumerable<Film> GetSuggestion(int username);
         Task<UserFilms> AddWatchLater(int userId, int filmId);
         Task<UserFilms> AddWatched(int userId, int filmId, int rating);
         Actor GetBestActor(DateTime? starTime);
@@ -436,6 +471,7 @@ namespace Cinemateque.Data
         IQueryable<Film> GetFilms();
         IEnumerable<Film> GetHistory(int userId);
         IEnumerable<Film> GetWatchLater(int userId);
+        Favorites GetFavorites(int userID);
     }
 
     public enum FilmStatus

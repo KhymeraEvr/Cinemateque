@@ -1,58 +1,57 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+@model SearchModel
+<h2 id="favorites"></h2>
 
-@if (User.IsInRole("Admin"))
-{
-    <a>dsjkfhdskjlghkjljhcklvhbkljhdfslkgsfgfdg</a>
-
-}
-
-<div id="maybe">
-    <h2>Search</h2>
-    <div class="form-group">
-        <label>Name</label>
-        <input class="form-control" id="nameSearch" aria-describedby="nameSearch" placeholder="Search by name">
-    </div>
-    <div class="form-group">
-        <label>Genre</label>
-        <input class="form-control" id="genreSearch" aria-describedby="genreSearch" placeholder="Search by genre">
-    </div>
-    <div class="form-group">
-        <label>Actors</label>
-        <input class="form-control" id="actorSearch" aria-describedby="actorsSearch" placeholder="Search by actor">
-    </div>
-    <div class="form-group">
-        <label>Director</label>
-        <input class="form-control" id="directorSearch" aria-describedby="directorSearch" placeholder="Search by directir">
-    </div>
-    <button onclick="searchFilm()" class="btn btn-primary">Search</button>
-    <a asp-controller="Home" asp-action="GetSuggestion"  class="btn btn-primary">GetSuggestion</a>
-
-    <h2>Statistics</h2>
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Statistics
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <input type="date" class="form-control dropdown-item" id="startDate" placeholder="StartDate">
-            <ul>
-                <li> <a onclick="getTopActor()" class="dropdown-item">GetTopRatedActor</a>                                                      </li>
-                <li> <a onclick="getBestActor()" class="dropdown-item">GetBestActor</a>                                                         </li>
-                <li> <a onclick="getBestDirector()" class="dropdown-item">GetBestDirector</a>                                                   </li>
-                <li> <a onclick="getTopDirector()" class="dropdown-item">GetTopRatedDiretcor</a>                                                </li>
-                <li> <a asp-controller="Home" asp-action="GetTopRatedFilm" class="dropdown-item">GetTopRatedFilm</a>                            </li>
-                <li> <a asp-controller="Home" asp-action="GetBestFilm" asp-route-date="getDate()" class="dropdown-item">GetBestFilm</a>          </li>
-                <li> <a asp-controller="Home" asp-action="GetAwardedFilm" asp-route-date="getDate()" class="dropdown-item">GetAwardedFilm</a>   </li>
-                <li> <a onclick="getPopGenre()" class="dropdown-item">GetMostPopularGenre</a>                                                   </li>
-                <li> <a onclick="getTopReward()" class="dropdown-item">GetTopReward</a>                                                         </li>
-                <li> <a onclick="getActiveUser()" class="dropdown-item">GetMostActiveUser</a>                                                   </li>
-            </ul>
+    <div id="maybe">
+        <h2>Search</h2>
+        <div class="form-group">
+            <label>Name</label>
+            <input class="form-control" id="nameSearch" aria-describedby="nameSearch" placeholder="Search by name">
         </div>
-    </div>
+        <div class="form-group">
+            <label>Genre</label>
+            <input class="form-control" id="genreSearch" aria-describedby="genreSearch" placeholder="Search by genre">
+        </div>
+        <div class="form-group">
+            <label>Actors</label>
+            <input class="form-control" id="actorSearch" aria-describedby="actorsSearch" placeholder="Search by actor">
+        </div>
+        <div class="form-group">
+            <label>Director</label>
+            <input class="form-control" id="directorSearch" aria-describedby="directorSearch" placeholder="Search by directir">
+        </div>
+        <button onclick="searchFilm()" class="btn btn-primary">Search</button>
+        <a asp-controller="Home" asp-action="GetSuggestion" class="btn btn-primary">GetSuggestion</a>
+        <a onclick="getFavorites()" class="btn btn-primary">GetFavorites</a>
+        <h2>Statistics</h2>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Statistics
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <form action="" method="post" >
+                    <input asp-for="Date" type="date" class="form-control dropdown-item" id="startDate" placeholder="StartDate">
 
-    <script src="~/js/filmScripts.js"></script>
-</div>
+                    <ul>
+                        <li> <a onclick="getTopActor()" class="dropdown-item">GetTopRatedActor</a>                                                      </li>
+                        <li> <a onclick="getBestActor()" class="dropdown-item">GetBestActor</a>                                                         </li>
+                        <li> <a onclick="getBestDirector()" class="dropdown-item">GetBestDirector</a>                                                   </li>
+                        <li> <a onclick="getTopDirector()" class="dropdown-item">GetTopRatedDiretcor</a>                                                </li>
+                        <li> <a name="action:GetBestFilm" class="dropdown-item">GetTopRatedFilm</a>                            </li>
+                        <li> <a asp-controller="Home" asp-action="GetBestFilm" class="dropdown-item">GetBestFilm</a>          </li>
+                        <li> <a asp-controller="Home" asp-action="GetAwardedFilm" class="dropdown-item">GetAwardedFilm</a>   </li>
+                        <li> <a onclick="getPopGenre()" class="dropdown-item">GetMostPopularGenre</a>                                                   </li>
+                        <li> <a onclick="getTopReward()" class="dropdown-item">GetTopReward</a>                                                         </li>
+                        <li> <a onclick="getActiveUser()" class="dropdown-item">GetMostActiveUser</a>                                                   </li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+
+        <script src="~/js/filmScripts.js"></script>
+    </div>
 
 <div class="card" id="bestActor" style="width: 18rem; display:none">
     <div class="card-body">

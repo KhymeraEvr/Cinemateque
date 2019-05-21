@@ -153,8 +153,12 @@ namespace Cinemateque.Controllers
         public IActionResult GetSuggestion()
         {
             List<FilmViewModel> fs = new List<FilmViewModel>();
-            var film = MapToViewModel(_serv.GetSuggestion( UserID ));
-            fs.Add(film);
+            var suggestions = _serv.GetSuggestion(UserID);
+            foreach(var fl in suggestions)
+            {
+                var film = MapToViewModel(fl);
+                fs.Add(film);
+            }          
 
             return View("FilmTable", fs);
         }
@@ -179,7 +183,7 @@ namespace Cinemateque.Controllers
         }
 
         [HttpGet("bestActor/{date}")]
-        public IActionResult GetBestActor([FromQuery] string date)
+        public IActionResult GetBestActor([FromRoute] string date)
         {
             DateTime? datetime = null;
             if (date != null) datetime = Convert.ToDateTime(date);
@@ -189,7 +193,7 @@ namespace Cinemateque.Controllers
         }
 
         [HttpGet("activeUser/{date}")]
-        public IActionResult GetMostActiveUser([FromQuery] string date)
+        public IActionResult GetMostActiveUser([FromRoute] string date)
         {
             DateTime? datetime = null;
             if (date != null) datetime = Convert.ToDateTime(date);
@@ -203,8 +207,14 @@ namespace Cinemateque.Controllers
             var a = _serv.GetTopRatedActor();
             return Ok(new { Name = a.ActorName, Rate = a.Rating });
         }
+        [HttpGet("favorites")]
+        public IActionResult GetFavorites()
+        {
+            var a = _serv.GetFavorites(UserID);
+            return Ok( a );
+        }
         [HttpGet("bestDirector/{date}")]
-        public IActionResult GetBestDirector([FromQuery] string date)
+        public IActionResult GetBestDirector([FromRoute] string date)
         {
             DateTime? datetime = null;
             if (date != null) datetime = Convert.ToDateTime(date);
@@ -226,11 +236,12 @@ namespace Cinemateque.Controllers
 
             return View("FilmTable", fs);
         }
-        [HttpGet("bestFilm/{date}")]
-        public IActionResult GetBestFilm([FromQuery] string date)
+
+        public IActionResult GetBestFilm([FromForm] SearchModel date)
         {
             DateTime? datetime = null;
-            if (date != null) datetime = Convert.ToDateTime(date);
+            if (date != null) datetime = Convert.ToDateTime(date.Date);
+            datetime = DateTime.Now.AddYears(-20);
             var bestFilms = _serv.GetBestFilm(datetime);
             List<FilmViewModel> fs = new List<FilmViewModel>();
             foreach (var f in bestFilms)
@@ -240,11 +251,12 @@ namespace Cinemateque.Controllers
 
             return View("FilmTable", fs);
         }
-        [HttpGet("awardedFilm/{date}")]
-        public IActionResult GetAwardedFilm([FromQuery] string date)
+
+        public IActionResult GetAwardedFilm([FromRoute] string date)
         {
             DateTime? datetime = null;
             if (date != null) datetime = Convert.ToDateTime(date);
+            datetime = DateTime.Now.AddYears(-20);
             var bestFilms = _serv.GetAwardedFilm(datetime);
             List<FilmViewModel> fs = new List<FilmViewModel>();
                 fs.Add(MapToViewModel(bestFilms));           
@@ -252,7 +264,7 @@ namespace Cinemateque.Controllers
             return View("FilmTable", fs);
         }
         [HttpGet("popGenre/{date}")]
-        public IActionResult GetMostPopularGenre([FromQuery] string date)
+        public IActionResult GetMostPopularGenre([FromRoute] string date)
         {
             DateTime? datetime = null;
             if (date != null) datetime = Convert.ToDateTime(date);
@@ -260,7 +272,7 @@ namespace Cinemateque.Controllers
             return Ok(new { Name = a });
         }
         [HttpGet("topReward/{date}")]
-        public IActionResult GetTopReward([FromQuery] string date)
+        public IActionResult GetTopReward([FromRoute] string date)
         {
             DateTime? datetime = null;
             if (date != null) datetime = Convert.ToDateTime(date);
