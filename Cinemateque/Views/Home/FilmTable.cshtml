@@ -42,7 +42,6 @@
             </td>
             <td>
                @if ( film.Awards.Count() != 0 ) { film.Awards.Aggregate( ( a, b ) => a.ToString() + ", " + b.ToString() ); }
-
             </td>
             <td>
                <div class="dropdown">
@@ -88,4 +87,3 @@
 <button onclick="searchFilm()" class="btn btn-primary">Search</button>
 
 <script src="~/js/filmScripts.js"></script>
-

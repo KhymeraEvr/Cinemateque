@@ -42,8 +42,11 @@ namespace Cinemateque.Data
         public IQueryable<UserFilms> GetUserFilms()
         {
             return _context.UserFilms.Include(u => u.Film)
-                .Include(u => u.Film.Director)
-                .Include(u => u.User);
+                .ThenInclude(u => u.Director)
+                .Include(u => u.Film)
+                .ThenInclude(u => u.FilmActors)
+                .Include(u => u.User)
+                .Include(u => u.Film.FilmActors);
         }
 
         public IQueryable<FilmActors> GetFilmActors()
@@ -76,8 +79,8 @@ namespace Cinemateque.Data
 
         public async Task<Film> AddFilm(AddFilmModel model)
         {
-            var actors = model.Actors.Split(", ");
-            var awards = model.Awards.Split(", ");
+            var actors = model.Actors?.Split(", ").ToList() ?? new List<string>();
+            var awards = model.Awards?.Split(", ").ToList() ?? new List<string>();
 
             if (!_context.Director.Any(d => d.DirectorName == model.Director))
             {
@@ -154,10 +157,10 @@ namespace Cinemateque.Data
             return addedFilm.Entity;
         }
 
-        public Film GetSuggestion(string username)
+        public Film GetSuggestion(int username)
         {
-            var user = GetUser().Where(u => u.UserName == username);
-            var userFilms = GetUserFilms().Where(f => f.User.UserName == username).Select(f => f.Film);
+            var user = GetUser().Where(u => u.Id == username);
+            var userFilms = GetUserFilms().Where(f => f.User.Id == username).Select(f => f.Film).ToList();
 
             var favoriteGenre = userFilms.GroupBy(f => f.Genre)
                 .OrderByDescending(g => g.Count()).First().Select(f => f.Genre).First();
@@ -166,7 +169,7 @@ namespace Cinemateque.Data
                 .OrderByDescending(g => g.Count()).First().Select(f => f.Director.DirectorName).First();
 
             var favoriteActor = userFilms.SelectMany(f => f.FilmActors)
-                .GroupBy(a => a.Actor.ActorName).OrderByDescending(a => a.Count()).First()
+                .GroupBy(a => a.Actor.Id).OrderByDescending(a => a.Count()).First()
                 .Select(f => f.Actor.ActorName).First();
 
             var interestingFilms = SearchFilms(null, favoriteGenre, favoriteDirector, favoriteActor);
@@ -231,29 +234,39 @@ namespace Cinemateque.Data
                 {
                     _context.UserFilms.Remove(rate);
                 }
-                _context.SaveChanges();
+               // _context.SaveChanges();
             }
 
             var user = GetUser().Where(u => u.Id == userId).FirstOrDefault();
             var film = GetFilms().Where(f => f.Id == filmId).FirstOrDefault();
 
             var filmReviews = GetUserFilms().Where(u => u.FilmId == film.Id).Count();
-            var updatedRate = (film.Rating ?? 0 + rating) / (filmReviews + 1);
+
+            int updatedRate;
+
+            if (film.Rating == null)
+            {
+                updatedRate = rating;
+            }
+            else
+            {
+                updatedRate = (film.Rating.Value + rating) / (filmReviews + 1);
+
+            }
 
             film.Rating = updatedRate;
 
+            var resUpdate = _context.Film.Update(film);
+            //await _context.SaveChangesAsync();
             UserFilms newUF = new UserFilms
             {
-                User = user,
-                Film = film,
                 FilmId = filmId,
                 UserId = userId,
                 Time = DateTime.Now,
                 Status = nameof(FilmStatus.seen),
                 Rating = rating
             };
-           var resUpdate =  _context.Film.Update(film);
-            await _context.SaveChangesAsync();
+
 
             var res = await _context.UserFilms.AddAsync(newUF);
             await _context.SaveChangesAsync();
@@ -375,6 +388,22 @@ namespace Cinemateque.Data
             _context.SaveChanges();
             return res.Entity;
         }
+
+        public async Task DeleteFilm(int filmId)
+        {
+            var film = _context.Film.Find(filmId);
+            var filmActors = _context.FilmActors.Where(f => f.FilmId == film.Id)?.ToList() ?? new List<FilmActors>();
+            foreach(var f in filmActors)
+            {
+                _context.FilmActors.Remove(f);
+            }
+            await _context.SaveChangesAsync();
+            if (film != null)
+            {
+                _context.Film.Remove(film);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 
 
@@ -383,7 +412,7 @@ namespace Cinemateque.Data
         CinematequeContext Context { get; }
         IEnumerable<Film> SearchFilms(string name, string genre, string director, string actor);
         Task<Film> AddFilm(AddFilmModel film);
-        Film GetSuggestion(string username);
+        Film GetSuggestion(int username);
         Task<UserFilms> AddWatchLater(int userId, int filmId);
         Task<UserFilms> AddWatched(int userId, int filmId, int rating);
         Actor GetBestActor(DateTime? starTime);
@@ -392,6 +421,7 @@ namespace Cinemateque.Data
         Director GetBestDirector(DateTime? starTime);
         Director GetTopRatedDiretcor();
         Film GetTopRatedFilm();
+        Task DeleteFilm(int filmId);
         IEnumerable<Film> GetBestFilm(DateTime? starTime);
         Film GetAwardedFilm(DateTime? starTime);
         string GetMostPopularGenre(DateTime? starTime);

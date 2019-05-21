@@ -332,3 +332,12 @@ function getCookie(cname) {
     }
     return "";
 }
+
+function deleteFilm(data) {
+    var id = $(data).data('assigned-id');
+    return fetch('delete/' + id, {
+        method: 'delete'
+    }).then(response =>
+        alert("Successfuly deleted")
+    );
+}

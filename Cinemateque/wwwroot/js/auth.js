@@ -6,6 +6,7 @@
         Password: password,
     };
 
+
     $.ajax({
         type: "POST",
         url: 'authenticate',

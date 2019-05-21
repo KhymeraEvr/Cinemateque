@@ -24,15 +24,16 @@ namespace Cinemateque.Middleware
       public async Task Invoke( HttpContext context )
       {
          var token = context.Request.Cookies["Token"];
-         if ( token != null )
+         if ( token != null && token != "undefined" )
          {
             context.Request.Headers.Append( "Authorization", "Bearer " + token );
             var Jtoken = new JwtSecurityTokenHandler().ReadJwtToken( token );
             var userId = Convert.ToInt32( Jtoken.Claims.FirstOrDefault( c => c.Type == "unique_name" )?.Value );
-            var claims = new List<Claim>
+            var role =  Jtoken.Claims.FirstOrDefault( c => c.Type == "role" )?.Value;
+                var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, userId.ToString()),
-                new Claim(ClaimTypes.Role, nameof(AuthRole.User))
+                new Claim(ClaimTypes.Role, role)
             };
 
             var identity = new ClaimsIdentity( CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role );
