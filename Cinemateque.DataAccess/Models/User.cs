@@ -7,6 +7,7 @@ namespace Cinemateque.DataAccess.Models
     {
         public User()
         {
+            Order = new HashSet<Order>();
             UserFilms = new HashSet<UserFilms>();
         }
 
@@ -17,6 +18,7 @@ namespace Cinemateque.DataAccess.Models
         public int? Rating { get; set; }
         public string Token { get; set; }
 
+        public ICollection<Order> Order { get; set; }
         public ICollection<UserFilms> UserFilms { get; set; }
     }
 }

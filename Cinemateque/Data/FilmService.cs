@@ -80,7 +80,6 @@ namespace Cinemateque.Data
         public async Task<Film> AddFilm(AddFilmModel model)
         {
             var actors = model.Actors?.Split(", ").ToList() ?? new List<string>();
-            var awards = model.Awards?.Split(", ").ToList() ?? new List<string>();
 
             if (!_context.Director.Any(d => d.DirectorName == model.Director))
             {
@@ -98,7 +97,10 @@ namespace Cinemateque.Data
                 DirectorId = directorID,
                 FilmName = model.FilmName,
                 Genre = model.Genre,
-                PremiereDate = model.PremiereDate
+                PremiereDate = model.PremiereDate,
+                Price = model.Price,
+                Discount = model.Discount,
+                Image = model.Image
             };
 
             var filmExist = _context.Film.Where(f => f.FilmName == newFilm.FilmName).FirstOrDefault();
@@ -126,17 +128,6 @@ namespace Cinemateque.Data
                     FilmId = addedFilm.Id
                 };
                 AddFilmActor(toAdd).Wait();
-            }
-
-            foreach (var rew in awards)
-            {
-                var toAdd = new FilmReward
-                {
-                    Date = addedFilm.PremiereDate,
-                    RewardName = rew,
-                    FilmId = addedFilm.Id
-                };
-                AddAwards(toAdd).Wait();
             }
 
             var res = await _context.SaveChangesAsync();
@@ -403,7 +394,6 @@ namespace Cinemateque.Data
             var toUpdate = GetFilms().Where(f => f.FilmName == model.FilmName).FirstOrDefault();
             if (toUpdate == null) return null;
             var actors = model.Actors?.Split(", ").ToList() ?? new List<string>();
-            var awards = model.Awards?.Split(", ").ToList() ?? new List<string>();
 
             if (!_context.Director.Any(d => d.DirectorName == model.Director))
             {
@@ -443,17 +433,6 @@ namespace Cinemateque.Data
                     FilmId = res.Id
                 };
                 AddFilmActor(toAdd).Wait();
-            }
-
-            foreach (var rew in awards)
-            {
-                var toAdd = new FilmReward
-                {
-                    Date = res.PremiereDate,
-                    RewardName = rew,
-                    FilmId = res.Id
-                };
-                AddAwards(toAdd).Wait();
             }
 
             return res;
@@ -512,20 +491,15 @@ namespace Cinemateque.Data
         IEnumerable<Film> GetSuggestion(int username);
         Task<UserFilms> AddWatchLater(int userId, int filmId);
         Task<UserFilms> AddWatched(int userId, int filmId, int rating);
-        Actor GetBestActor(DateTime? starTime);
         User GetMostActiveUser(DateTime? starTime);
-        Actor GetTopRatedActor();
         Director GetBestDirector(DateTime? starTime);
         Director GetTopRatedDiretcor();
         Film GetTopRatedFilm();
         Task DeleteFilm(int filmId);
-        IEnumerable<Film> GetBestFilm(DateTime? starTime);
         Film GetAwardedFilm(DateTime? starTime);
         string GetMostPopularGenre(DateTime? starTime);
-        FilmReward GetTopReward(DateTime? starTime);
         Task<Film> UpdateFilm(AddFilmModel updated);
         Task<FilmActors> AddFilmActor(FilmActors film);
-        Task<FilmReward> AddAwards(FilmReward film);
         IQueryable<User> GetUser();
         IQueryable<FilmReward> GetFilmRewards();
         IQueryable<FilmActors> GetFilmActors();

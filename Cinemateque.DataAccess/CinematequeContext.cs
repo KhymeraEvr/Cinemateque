@@ -1,5 +1,7 @@
-﻿using Cinemateque.DataAccess.Models;
+﻿using System;
+using Cinemateque.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Cinemateque.DataAccess
 {
@@ -19,16 +21,17 @@ namespace Cinemateque.DataAccess
         public virtual DbSet<Film> Film { get; set; }
         public virtual DbSet<FilmActors> FilmActors { get; set; }
         public virtual DbSet<FilmReward> FilmReward { get; set; }
+        public virtual DbSet<Order> Order { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserFilms> UserFilms { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-//            if (!optionsBuilder.IsConfigured)
-//            {
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-//                optionsBuilder.UseSqlServer("Server=BF2142FOREVA\\TEW_SQLEXPRESS;Database=Cinemateque;Trusted_Connection=True;");
-//            }
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Server=BF2142FOREVA\\TEW_SQLEXPRESS;Database=Cinemateque;Trusted_Connection=True;");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -50,6 +53,8 @@ namespace Cinemateque.DataAccess
                     .HasMaxLength(50);
 
                 entity.Property(e => e.Genre).HasMaxLength(50);
+
+                entity.Property(e => e.Image).HasMaxLength(50);
 
                 entity.Property(e => e.PremiereDate).HasColumnType("datetime");
 
@@ -82,6 +87,23 @@ namespace Cinemateque.DataAccess
                     .WithMany(p => p.FilmReward)
                     .HasForeignKey(d => d.FilmId)
                     .HasConstraintName("FK_FilmReward_Film1");
+            });
+
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.Property(e => e.Status).HasMaxLength(50);
+
+                entity.HasOne(d => d.Film)
+                    .WithMany(p => p.Order)
+                    .HasForeignKey(d => d.FilmId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Order_Film");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Order)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Order_User");
             });
 
             modelBuilder.Entity<User>(entity =>

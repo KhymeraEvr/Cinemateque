@@ -35,7 +35,13 @@ namespace Cinemateque.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var films = _serv.GetFilms();
+            List<FilmViewModel> fs = new List<FilmViewModel>();
+            foreach (var f in films)
+            {
+                fs.Add(MapToViewModel(f));
+            }
+            return View("FilmPanels", fs);
         }
 
         public IActionResult Library()
@@ -133,12 +139,6 @@ namespace Cinemateque.Controllers
             return Ok(_serv.GetUserFilms().ToList().Select( a => new { a.Id, a.Film.FilmName,a.User.UserName, a.Status, a.Rating, a.Time }));
         }
 
-        [HttpGet("Home/awards")]
-        public IActionResult GetAwards()
-        {
-            return Ok(_serv.GetFilmRewards().ToList().Select( a => new { a.Id, a.RewardName, a.Film.FilmName, a.Date }));
-        }
-
 
         [HttpPost]
         public async Task<IActionResult> AddFilm([FromForm] AddFilmModel model)
@@ -188,15 +188,6 @@ namespace Cinemateque.Controllers
             return Ok();
         }
 
-        [HttpGet("bestActor/{date}")]
-        public IActionResult GetBestActor([FromRoute] string date)
-        {
-            DateTime? datetime = null;
-            if (date != null) datetime = Convert.ToDateTime(date);
-            var a = _serv.GetBestActor(datetime);
-            return Ok(new { Name = a.ActorName, Rate = a.Rating });
-
-        }
 
         [HttpGet("activeUser/{date}")]
         public IActionResult GetMostActiveUser([FromRoute] string date)
@@ -207,32 +198,13 @@ namespace Cinemateque.Controllers
             return Ok(new { Name = a.UserName, Rate = a.Rating });
         }
 
-        [HttpGet("ratedActor")]
-        public IActionResult GetTopRatedActor()
-        {
-            var a = _serv.GetTopRatedActor();
-            return Ok(new { Name = a.ActorName, Rate = a.Rating });
-        }
         [HttpGet("favorites")]
         public IActionResult GetFavorites()
         {
             var a = _serv.GetFavorites(UserID);
             return Ok( a );
         }
-        [HttpGet("bestDirector/{date}")]
-        public IActionResult GetBestDirector([FromRoute] string date)
-        {
-            DateTime? datetime = null;
-            if (date != null) datetime = Convert.ToDateTime(date);
-            var a = _serv.GetBestDirector(datetime);
-            return Ok(new { Name = a.DirectorName, Rate = a.Rating });
-        }
-        [HttpGet("ratedDirector")]
-        public IActionResult GetTopRatedDiretcor()
-        {
-            var a = _serv.GetTopRatedDiretcor();
-            return Ok(new { Name = a.DirectorName, Rate = a.Rating });
-        }
+
         [HttpGet("ratedFilm")]
         public IActionResult GetTopRatedFilm()
         {
@@ -243,32 +215,7 @@ namespace Cinemateque.Controllers
             return View("FilmTable", fs);
         }
 
-        public IActionResult GetBestFilm([FromForm] SearchModel date)
-        {
-            DateTime? datetime = null;
-            if (date != null) datetime = Convert.ToDateTime(date.Date);
-            datetime = DateTime.Now.AddYears(-20);
-            var bestFilms = _serv.GetBestFilm(datetime);
-            List<FilmViewModel> fs = new List<FilmViewModel>();
-            foreach (var f in bestFilms)
-            {
-                fs.Add(MapToViewModel(f));
-            }
 
-            return View("FilmTable", fs);
-        }
-
-        public IActionResult GetAwardedFilm([FromRoute] string date)
-        {
-            DateTime? datetime = null;
-            if (date != null) datetime = Convert.ToDateTime(date);
-            datetime = DateTime.Now.AddYears(-20);
-            var bestFilms = _serv.GetAwardedFilm(datetime);
-            List<FilmViewModel> fs = new List<FilmViewModel>();
-                fs.Add(MapToViewModel(bestFilms));           
-
-            return View("FilmTable", fs);
-        }
         [HttpGet("popGenre/{date}")]
         public IActionResult GetMostPopularGenre([FromRoute] string date)
         {
@@ -276,14 +223,6 @@ namespace Cinemateque.Controllers
             if (date != null) datetime = Convert.ToDateTime(date);
             var a = _serv.GetMostPopularGenre(datetime);
             return Ok(new { Name = a });
-        }
-        [HttpGet("topReward/{date}")]
-        public IActionResult GetTopReward([FromRoute] string date)
-        {
-            DateTime? datetime = null;
-            if (date != null) datetime = Convert.ToDateTime(date);
-            var a = _serv.GetTopReward(datetime);
-            return Ok(new { Name = a.RewardName });
         }
 
         private FilmViewModel MapToViewModel(Film film)
@@ -300,7 +239,9 @@ namespace Cinemateque.Controllers
                 UserRating = userFilm != null ? (int)(userFilm.Rating ?? 0) : 0,
                 Rating = film.Rating ?? 0,
                 Actors = _serv.GetFilmActors().Where(f => f.FilmId == film.Id).Select(a => a.Actor.ActorName).ToArray(),
-                Awards = _serv.GetFilmRewards().Where(r => r.FilmId == film.Id).Select(w => w.RewardName).ToArray()
+                Price = film.Price ?? 0.0,
+                Discount = film.Discount ?? 0.0,
+                Image = film.Image
             };
         }
     }

@@ -9,6 +9,8 @@ namespace Cinemateque.Models
         public DateTime? PremiereDate { get; set; }
         public string Director { get; set; }
         public string Actors { get; set; }
-        public string Awards { get; set; }
+        public string Image { get; set; }
+        public float Price { get; set; }
+        public float Discount { get; set; }
     }
 }

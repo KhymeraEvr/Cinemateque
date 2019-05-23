@@ -17,8 +17,6 @@
             <th scope="col">Rating</th>
             <th scope="col">User Rating</th>
             <th scope="col">Actors</th>
-            <th scope="col">Awards</th>
-            <th scope="col">Rate film</th>
         </tr>
     </thead>
 
@@ -36,10 +34,6 @@
                 <td>@film.UserRating</td>
                 <td>
                     @film.Actors.Aggregate((a, b) => a.ToString() + ", " + b.ToString());
-                </td>
-                <td>
-                    @if (film.Awards.Count() != 0) { film.Awards.Aggregate((a, b) => a.ToString() + ", " + b.ToString()); }
-
                 </td>
             </tr>
         </tbody>

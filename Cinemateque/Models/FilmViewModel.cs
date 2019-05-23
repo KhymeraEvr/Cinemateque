@@ -15,6 +15,9 @@ namespace Cinemateque.Models
         public int Rating { get; set; }
         public int UserRating { get; set; }
         public string[] Actors { get; set; }
-        public string[] Awards { get; set; }
+        public string Views { get; set; }
+        public double Price { get; set; }
+        public double Discount { get; set; }
+        public string Image { get; set; }
     }
 }

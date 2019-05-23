@@ -1,0 +1,77 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@model List<Cinemateque.Models.FilmViewModel>
+<script src="~/js/ProductsList.js"></script>
+<link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+<link href="~/css/site.css" rel="stylesheet" />
+<script src="~/lib/jquery/dist/jquery.js"></script>
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+    @{
+        foreach (var prod in Model)
+        {
+            <div style="padding: 25px;  display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">
+                <div>
+                    <img style="width:200px;" src="@prod.Image" alt="Card image cap">
+                </div>
+
+                <div style="display: flex; flex-direction: row; flex-wrap: wrap;padding-top: 10px">
+                    <span class="btn btn-danger" background-color:#28a745">@prod.Price $</span>
+                    <a href="#" class="btn btn-danger" onclick="addToCart(this)" data-assigned-id="@prod.FilmId">Add to cart</a>
+                </div>
+                <p>
+                    <a class="btn btn-primary" data-toggle="collapse" href="#@prod.FilmId" role="button" aria-expanded="false" aria-controls="collapseExample">
+                        Details
+                    </a>
+                </p>
+                <div class="collapse" id="@prod.FilmId">
+                    <ul style="list-style-type:none">
+                        <li>
+                            <span style="font-weight:bold">Name: </span> @prod.FilmName
+                        </li>
+                        <li><span style="font-weight:bold">Genre: </span>@prod.Genre</li>
+                        <li><span style="font-weight:bold">Premiere Date:  </span>@prod.PremiereDate</li>
+                        <li><span style="font-weight:bold">Director:  </span>@prod.Director</li>
+                        <li><span style="font-weight:bold">Rating:  </span>@prod.Rating</li>
+                        <li>
+                            <span style="font-weight:bold">Actors:  </span>
+                            @if (prod.Actors.Count() != 0)
+                            {
+                                @prod.Actors.Aggregate((span, b) => span.ToString() + ", " + b.ToString());
+                            }
+
+                        </li>
+                        <li>
+                            <span style="font-weight:bold">Rate: </span>
+
+                            <select style="width:50px" onchange="rate(this)" data-assigned-id="@prod.FilmId" class="form-control form-control" id="status">
+                                <option> 1 </option>
+                                <option> 2 </option>
+                                <option> 3 </option>
+                                <option> 4</option>
+                                <option> 5 </option>
+                            </select>
+                        </li>
+                        <div style="display: flex; flex-direction: row; flex-wrap: wrap;padding-top: 10px">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li>
+                                    <button class="btn" onclick="deleteFilm(this)" data-assigned-id="@prod.FilmId">Delete</button>
+                                </li>
+                            }
+                            <button class="btn" onclick="watchLater(this)" data-assigned-id="@prod.FilmId">Watch later</button>
+                        </div>
+                    </ul>
+                </div>
+
+            </div>
+        }
+    }
+</div>
+
+<div style="padding-left: 500px">
+    <a href="javascript:prevPage()" class="btn" onclick="" id="btn_prev">Prev</a>
+    <a href="javascript:nextPage()" class="btn" id="btn_next">Next</a>
+</div>
