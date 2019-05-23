@@ -36,6 +36,7 @@
                         @if (User.IsInRole("Admin"))
                         {
                             <li><a asp-controller="Home" asp-action="AddFilmForm">AddFilm</a></li>
+                            <li><a asp-controller="Home" asp-action="UpdateFilmForm">UpdateFilm</a></li>
                         }
                         <li><a asp-controller="Home" asp-action="History">History</a></li>
                         <li><a asp-controller="Home" asp-action="WatchLater">WatchLater</a></li>

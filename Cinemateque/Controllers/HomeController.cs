@@ -91,6 +91,12 @@ namespace Cinemateque.Controllers
             return View("AddFilm");
         }
 
+        [Route("UpdateFilmForm")]
+        public IActionResult UpdateFilmForm()
+        {
+            return View("UpdateFilm");
+        }
+
         [HttpGet("Home/actors")]
         public IActionResult GetActors()
         {
@@ -143,8 +149,8 @@ namespace Cinemateque.Controllers
             return RedirectToAction("AddFilmForm");
         }
 
-        [HttpPut]
-        public IActionResult UpdateFilm([FromForm] Film model)
+        [HttpPost]
+        public IActionResult UpdateFilm([FromForm] AddFilmModel model)
         {
             return Ok(_serv.UpdateFilm(model));
         }

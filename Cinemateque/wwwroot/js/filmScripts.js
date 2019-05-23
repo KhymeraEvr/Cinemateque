@@ -260,7 +260,7 @@ function watchLater(data) {
 
 function rate(data) {
     var filmId = $(data).data('assigned-id');
-    var uri = "rate/" + filmId + "/" + data.value
+    var uri = "/rate/" + filmId + "/" + data.value
     $.ajax({
         type: "GET",
         url: uri,

@@ -27,14 +27,14 @@
         <a onclick="getFavorites()" class="btn btn-primary">GetFavorites</a>
         <h2>Statistics</h2>
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button  style="width:80%" class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Statistics
             </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <div  style="width:80%"class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <form action="" method="post" >
-                    <input asp-for="Date" type="date" class="form-control dropdown-item" id="startDate" placeholder="StartDate">
+                    <input  asp-for="Date" type="date" class="form-control dropdown-item" id="startDate" placeholder="StartDate">
 
-                    <ul>
+                    <ul  >
                         <li> <a onclick="getTopActor()" class="dropdown-item">GetTopRatedActor</a>                                                      </li>
                         <li> <a onclick="getBestActor()" class="dropdown-item">GetBestActor</a>                                                         </li>
                         <li> <a onclick="getBestDirector()" class="dropdown-item">GetBestDirector</a>                                                   </li>
