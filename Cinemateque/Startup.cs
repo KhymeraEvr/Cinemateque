@@ -38,7 +38,8 @@ namespace Cinemateque
 
          services.AddScoped<IUserService, UserService>();
          services.AddScoped<IFilmService, FilmService>();
-         services.AddSingleton( Configuration );
+         services.AddScoped<IOrderService, OrderService>();
+            services.AddSingleton( Configuration );
          services.AddMvc().SetCompatibilityVersion( CompatibilityVersion.Version_2_1 );
       }
 
@@ -70,11 +71,16 @@ namespace Cinemateque
                    name: "auth",
                    template: "users/authenticate",
                    defaults: new { controller = "Users", action = "Authenticate" }
+                   )
+                   .MapRoute(
+                   name: "authRed",
+                   template: "/Account",
+                   defaults: new { controller = "Users", action = "Login" }
                    );
 
-             routes.MapRoute(
+              routes.MapRoute(
                    name: "default",
-                   template: "{controller=Home}/{action=Index}/{id?}" );
+                   template: "{controller=Home}/{action=Index}/{id?}");
           } );
       }
    }

@@ -58,21 +58,6 @@ function getUserFilms() {
     });
 }
 
-function getAwards() {
-    var uri = "awards"
-    $.ajax({
-        type: "GET",
-        url: uri,
-        beforeSend: function (xhr) {
-            var token = getCookie("Token");
-            xhr.setRequestHeader("Authorization", "Bearer " + token);
-        },
-        success: function (data) {
-            getTable("awards", data)
-        }
-    });
-}
-
 function getDirectors() {
     var uri = "directors"
     $.ajax({
@@ -84,43 +69,6 @@ function getDirectors() {
         },
         success: function (data) {
             getTable("directors", data)
-        }
-    });
-}
-
-function getBestActor() {
-    var date = document.getElementById("startDate").value
-    var uri = "bestActor/" + date
-
-    $.ajax({
-        type: "GET",
-        url: uri,
-        beforeSend: function (xhr) {
-            var token = getCookie("Token");
-            xhr.setRequestHeader("Authorization", "Bearer " + token);
-        },
-        success: function (data) {
-            document.getElementById("bestActorName").innerHTML = data.name
-            document.getElementById("bestActorRate").innerHTML = data.rate
-            document.getElementById("bestActor").style.display = "block"
-        }
-    });
-}
-
-function getTopActor() {
-    var uri = "ratedActor"
-
-    $.ajax({
-        type: "GET",
-        url: uri,
-        beforeSend: function (xhr) {
-            var token = getCookie("Token");
-            xhr.setRequestHeader("Authorization", "Bearer " + token);
-        },
-        success: function (data) {
-            document.getElementById("topActorName").innerHTML = data.name
-            document.getElementById("topActorRate").innerHTML = data.rate
-            document.getElementById("topActor").style.display = "block"
         }
     });
 }
@@ -162,8 +110,6 @@ function getTopDirector() {
         }
     });
 }
-
-
 
 function getPopGenre() {
     var date = document.getElementById("startDate").value
@@ -213,25 +159,6 @@ function getFavorites() {
         },
         success: function (data) {
             document.getElementById("favorites").innerHTML = "Your favorite actor -  " + data.actor + " director -   " + data.director + "  genre -   " + data.genre;
-        }
-    });
-}
-
-
-function getTopReward() {
-    var date = document.getElementById("startDate").value
-    var uri = "topReward/" + date
-
-    $.ajax({
-        type: "GET",
-        url: uri,
-        beforeSend: function (xhr) {
-            var token = getCookie("Token");
-            xhr.setRequestHeader("Authorization", "Bearer " + token);
-        },
-        success: function (data) {
-            document.getElementById("topRewardName").innerHTML = data.name
-            document.getElementById("topReward").style.display = "block"
         }
     });
 }
@@ -357,4 +284,15 @@ function deleteFilm(data) {
     }).then(response =>
         alert("Successfuly deleted")
     );
+}
+
+function addToCart(data) {
+    var prodName = $(data).data('assigned-id');
+    $.ajax({
+        type: "GET",
+        url: "Home/AddToCart?prodId=" + prodName,
+        success: function (data) {
+            alert("Successfuly added to cart")
+        }
+    });
 }

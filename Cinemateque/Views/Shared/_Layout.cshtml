@@ -33,14 +33,21 @@
                     <li><a asp-controller="Home" asp-action="Index">Home</a></li>
                     @if (User.Identity.IsAuthenticated)
                     {
+                        <li class="dropdown-item"><a asp-controller="Home" asp-action="SearchView">Search</a></li>
                         @if (User.IsInRole("Admin"))
                         {
                             <li><a asp-controller="Home" asp-action="AddFilmForm">AddFilm</a></li>
                             <li><a asp-controller="Home" asp-action="UpdateFilmForm">UpdateFilm</a></li>
+                            <li><a asp-controller="Home" asp-action="Library">Library</a></li>
+                            <li><a asp-controller="Home" asp-action="Edit">Edit Orders</a></li>
+
                         }
-                        <li><a asp-controller="Home" asp-action="History">History</a></li>
-                        <li><a asp-controller="Home" asp-action="WatchLater">WatchLater</a></li>
-                        <li><a asp-controller="Home" asp-action="Library">Library</a></li>
+
+
+                        <li class="dropdown-item"><a asp-controller="Home" asp-action="History">History</a></li>
+                        <li class="dropdown-item"><a asp-controller="Home" asp-action="Cart">Cart</a></li>
+                        <li class="dropdown-item"><a asp-controller="Home" asp-action="WatchLater">Watch Later</a></li>
+
                     }
                 </ul>
                 <ul class="nav navbar-nav" style="float:right; margin:0px">

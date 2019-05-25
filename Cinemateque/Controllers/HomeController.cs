@@ -1,6 +1,7 @@
 ﻿using Cinemateque.Data;
 using Cinemateque.DataAccess.Models;
 using Cinemateque.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -15,6 +16,7 @@ namespace Cinemateque.Controllers
     {
         private readonly IFilmService _serv;
         private readonly IUserService _userService;
+        private readonly IOrderService _orderServ;
         private int _userId;
 
         private int UserID
@@ -27,12 +29,14 @@ namespace Cinemateque.Controllers
             }
         }
 
-        public HomeController(IFilmService service, IUserService userService)
+        public HomeController(IFilmService service, IUserService userService, IOrderService orderService)
         {
             _serv = service;
             _userService = userService;
+            _orderServ = orderService;
         }
 
+        [Authorize]
         public IActionResult Index()
         {
             var films = _serv.GetFilms();
@@ -43,6 +47,53 @@ namespace Cinemateque.Controllers
             }
             return View("FilmPanels", fs);
         }
+
+        [Authorize]
+        public async Task<IActionResult> Cart()
+        {
+            var model = await _orderServ.GetCart(UserID);
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult Edit([FromQuery]string name)
+        {
+            if (name == null)
+            {
+                name = _serv.GetUser(UserID).UserName;
+            }
+            var user = _serv.GetUser(name);
+            var orders = _orderServ.GetUserOrders(user.Id);
+            var model = new EditViewModel
+            {
+                Oreders = orders.ToList(),
+                User = user.UserName
+            };
+            return View( "EditOrder", model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task EditOrder([FromBody] UpdateOrderModel model)
+        {
+            var order = await _orderServ.GetOrder(Convert.ToInt32(model.OrderId));
+            order.Status = model.newStatus;
+            await _orderServ.UpdateOrder(order);
+        }
+
+        [HttpGet]
+        public async Task AddToCart([FromQuery]int prodId)
+        {
+            var order = new Order
+            {   
+                FilmId = prodId,
+                Status = "Active",
+                UserId= UserID
+            };
+            _orderServ.AddOrder(order).Wait();
+        }
+
 
         public IActionResult Library()
         {
@@ -58,11 +109,16 @@ namespace Cinemateque.Controllers
             {
                 fs.Add(MapToViewModel(f));
             }
-            return View("FilmTable", fs);
+            return View("Search", fs);
         }
 
-        [HttpPost("search")]
-        public IActionResult SearchFilm([FromBody] SearchModel model)
+        public IActionResult SearchView()
+        {
+            var model = new List<FilmViewModel>();
+            return View("Search",model);
+        }
+
+        public IActionResult Search([FromBody] SearchModel model)
         {
             return RedirectToAction("SearchTable", model);
         }
@@ -166,7 +222,7 @@ namespace Cinemateque.Controllers
                 fs.Add(film);
             }          
 
-            return View("FilmTable", fs);
+            return View("Search", fs);
         }
 
         [HttpGet("later/{filmId}")]

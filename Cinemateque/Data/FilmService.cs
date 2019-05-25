@@ -480,6 +480,18 @@ namespace Cinemateque.Data
             };
             return res;
         }
+
+        public User GetUser(int name)
+        {
+            var users = GetUser().FirstOrDefault(u => u.Id == name);
+            return users;
+        }
+
+        public User GetUser(string name)
+        {
+            var users = GetUser().FirstOrDefault(u => u.UserName == name);
+            return users;
+        }
     }
 
 
@@ -508,6 +520,8 @@ namespace Cinemateque.Data
         IEnumerable<Film> GetHistory(int userId);
         IEnumerable<Film> GetWatchLater(int userId);
         Favorites GetFavorites(int userID);
+        User GetUser(int name);
+        User GetUser(string name);
     }
 
     public enum FilmStatus

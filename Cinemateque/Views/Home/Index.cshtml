@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-@model SearchModel
+@model List<Cinemateque.Models.FilmViewModel>
 <h2 id="favorites"></h2>
 
 <div id="maybe">
@@ -30,24 +30,7 @@
         <button style="width:80%" class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Statistics
         </button>
-        <div style="width:80%" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <form action="" method="post">
-                <input asp-for="Date" type="date" class="form-control dropdown-item" id="startDate" placeholder="StartDate">
-
-                <ul>
-                    <li> <a onclick="getTopActor()" class="dropdown-item">GetTopRatedActor</a>                                                      </li>
-                    <li> <a onclick="getBestActor()" class="dropdown-item">GetBestActor</a>                                                         </li>
-                    <li> <a onclick="getBestDirector()" class="dropdown-item">GetBestDirector</a>                                                   </li>
-                    <li> <a onclick="getTopDirector()" class="dropdown-item">GetTopRatedDiretcor</a>                                                </li>
-                    <li> <a name="action:GetBestFilm" class="dropdown-item">GetTopRatedFilm</a>                            </li>
-                    <li> <a asp-controller="Home" asp-action="GetBestFilm" class="dropdown-item">GetBestFilm</a>          </li>
-                    <li> <a asp-controller="Home" asp-action="GetAwardedFilm" class="dropdown-item">GetAwardedFilm</a>   </li>
-                    <li> <a onclick="getPopGenre()" class="dropdown-item">GetMostPopularGenre</a>                                                   </li>
-                    <li> <a onclick="getTopReward()" class="dropdown-item">GetTopReward</a>                                                         </li>
-                    <li> <a onclick="getActiveUser()" class="dropdown-item">GetMostActiveUser</a>                                                   </li>
-                </ul>
-            </form>
-        </div>
+       
     </div>
 
     <script src="~/js/filmScripts.js"></script>

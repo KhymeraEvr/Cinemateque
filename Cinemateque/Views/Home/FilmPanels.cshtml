@@ -3,11 +3,10 @@
 }
 
 @model List<Cinemateque.Models.FilmViewModel>
-<script src="~/js/ProductsList.js"></script>
 <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
 <link href="~/css/site.css" rel="stylesheet" />
 <script src="~/lib/jquery/dist/jquery.js"></script>
-
+<script src="~/js/filmScripts.js"></script>
 <div style="display: flex; flex-direction: row; flex-wrap: wrap;">
     @{
         foreach (var prod in Model)

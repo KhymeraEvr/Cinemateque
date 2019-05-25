@@ -1,0 +1,73 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<script src="~/js/EditProd.js"></script>
+@model EditViewModel
+
+<form>
+    <h2>Add Discount</h2>
+    <div class="form-group">
+        <label for="exampleInputEmail1">Product Name</label>
+        <input class="form-control" id="prodName" aria-describedby="emailHelp" placeholder="Enter product name">
+    </div>
+    <div class="form-group">
+        <label for="exampleInputPassword1">Discount %</label>
+        <input class="form-control" id="discount" placeholder="Password">
+    </div>
+    <button type="submit" onclick="addDiscount()" class="btn btn-primary">Submit</button>
+</form>
+
+<form>
+    <h2>Edit Orders</h2>
+    <div class="form-group">
+        <label for="exampleInputEmail1">User Email</label>
+        <input class="form-control" id="UserNameEd" aria-describedby="emailHelp" placeholder="Enter user email">
+    </div>
+    <button type="submit" class="btn btn-primary" onclick="getUserOrders()">Submit</button>
+</form>
+
+
+<h4 class="card-title"><a>History of @Model.User</a></h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Price</th>
+            <th scope="col">Discount</th>
+            <th scope="col">Status</th>
+        </tr>
+    </thead>
+
+    @{
+        if (Model.Oreders != null)
+        {
+            foreach (var ord in Model.Oreders)
+            {
+                <tbody>
+                    <tr>
+                        <td scope="row">
+                            @ord.OrderId
+                        </td>
+                        <td>@ord.Film.FilmName</td>
+                        <td>@ord.Film.Price</td>
+                        <td>@ord.Film.Discount</td>
+                        <td>@ord.Status</td>
+                        <td>
+                            <div class="dropdown">
+                                <select onchange="editOrder(this)" data-assigned-id="@ord.OrderId" class="form-control form-control" id="status">
+                                    <option> Active </option>
+                                    <option> Canceled </option>
+                                    <option> Declined </option>
+                                    <option> Delivered </option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            }
+        }
+    }
+</table>

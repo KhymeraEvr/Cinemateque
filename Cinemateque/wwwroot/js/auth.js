@@ -18,7 +18,7 @@
             $('.userInfo').css('display', 'block');
             $('.loginForm').css('display', 'none');
             setCookie("Token", inputData.token);
-            console.log(dats);
+            window.location.href = "https://localhost:44376/";
         },
         fail: function (data) {
             console.log(data);
