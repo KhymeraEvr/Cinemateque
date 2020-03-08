@@ -4,14 +4,16 @@ using Cinemateque.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Cinemateque.DataAccess.Migrations
 {
     [DbContext(typeof(CinematequeContext))]
-    partial class CinematequeContextModelSnapshot : ModelSnapshot
+    [Migration("20200222203713_cinemateque2")]
+    partial class cinemateque2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,32 +30,11 @@ namespace Cinemateque.DataAccess.Migrations
                     b.Property<string>("ActorName")
                         .HasMaxLength(30);
 
-                    b.Property<int>("FilmsChecked");
-
-                    b.Property<double?>("Rating");
+                    b.Property<int?>("Rating");
 
                     b.HasKey("Id");
 
                     b.ToTable("Actors");
-                });
-
-            modelBuilder.Entity("Cinemateque.DataAccess.Models.CrewMember", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("FilmsChecked");
-
-                    b.Property<string>("Job");
-
-                    b.Property<string>("Name");
-
-                    b.Property<double?>("Rating");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CrewMembers");
                 });
 
             modelBuilder.Entity("Cinemateque.DataAccess.Models.Director", b =>
@@ -65,9 +46,7 @@ namespace Cinemateque.DataAccess.Migrations
                     b.Property<string>("DirectorName")
                         .HasMaxLength(50);
 
-                    b.Property<int>("FilmsChecked");
-
-                    b.Property<double?>("Rating");
+                    b.Property<int?>("Rating");
 
                     b.HasKey("Id");
 

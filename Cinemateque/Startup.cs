@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MovieData.Services;
+using MoviesProcessing.Services;
 
 namespace Cinemateque
 {
@@ -36,12 +38,16 @@ namespace Cinemateque
          services.AddDbContext<CinematequeContext>( options =>
               options.UseSqlServer( Configuration["DbConnectionString"] ) );
 
-         services.AddScoped<IUserService, UserService>();
-         services.AddScoped<IFilmService, FilmService>();
+          services.AddScoped<IUserService, UserService>();
          services.AddScoped<IOrderService, OrderService>();
-            services.AddSingleton( Configuration );
+         services.AddScoped<IMovieApiService, MovieApiService>();
+         services.AddScoped<IRatingAnalizer, RatingAnalizer>();
+         services.AddSingleton( Configuration );
+
          services.AddMvc().SetCompatibilityVersion( CompatibilityVersion.Version_2_1 );
       }
+      
+
 
       public void Configure( IApplicationBuilder app, IHostingEnvironment env )
       {
@@ -64,24 +70,7 @@ namespace Cinemateque
              .AllowAnyMethod()
              .AllowAnyHeader() );
          app.UseAuthentication();
-         app.UseCookieValidationMidddleware();
-         app.UseMvc( routes =>
-          {
-             routes.MapRoute(
-                   name: "auth",
-                   template: "users/authenticate",
-                   defaults: new { controller = "Users", action = "Authenticate" }
-                   )
-                   .MapRoute(
-                   name: "authRed",
-                   template: "/Account",
-                   defaults: new { controller = "Users", action = "Login" }
-                   );
-
-              routes.MapRoute(
-                   name: "default",
-                   template: "{controller=Home}/{action=Index}/{id?}");
-          } );
+         app.UseCookieValidationMidddleware();         
       }
    }
 }

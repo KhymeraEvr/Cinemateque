@@ -4,14 +4,16 @@ using Cinemateque.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Cinemateque.DataAccess.Migrations
 {
     [DbContext(typeof(CinematequeContext))]
-    partial class CinematequeContextModelSnapshot : ModelSnapshot
+    [Migration("20200308134851_08032020")]
+    partial class _08032020
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
