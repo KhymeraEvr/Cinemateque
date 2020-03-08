@@ -1,90 +1,121 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+   ViewData["Title"] = "Home Page";
 }
-@model List<Cinemateque.Models.FilmViewModel>
-<h2 id="favorites"></h2>
 
+<h1 id="Cinemateque">Cinemateque</h1>
+
+<link href="~/css/site.css" rel="stylesheet" />
 <div id="maybe">
-    <h2>Search</h2>
-    <div class="form-group">
-        <label>Name</label>
-        <input class="form-control" id="nameSearch" aria-describedby="nameSearch" placeholder="Search by name">
-    </div>
-    <div class="form-group">
-        <label>Genre</label>
-        <input class="form-control" id="genreSearch" aria-describedby="genreSearch" placeholder="Search by genre">
-    </div>
-    <div class="form-group">
-        <label>Actors</label>
-        <input class="form-control" id="actorSearch" aria-describedby="actorsSearch" placeholder="Search by actor">
-    </div>
-    <div class="form-group">
-        <label>Director</label>
-        <input class="form-control" id="directorSearch" aria-describedby="directorSearch" placeholder="Search by directir">
-    </div>
-    <button onclick="searchFilm()" class="btn btn-primary">Search</button>
-    <a asp-controller="Home" asp-action="GetSuggestion" class="btn btn-primary">GetSuggestion</a>
-    <a onclick="getFavorites()" class="btn btn-primary">GetFavorites</a>
-    <h2>Statistics</h2>
-    <div class="dropdown">
-        <button style="width:80%" class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Statistics
-        </button>
-       
-    </div>
+   <h2>Search</h2>
+   <div class="form-group">
+      <label>Name</label>
+      <input class="form-control" id="nameSearch" aria-describedby="nameSearch" placeholder="Search by name">
+   </div>
+   <div class="form-group">
+      <label>Genre</label>
+      <input class="form-control" id="genreSearch" aria-describedby="genreSearch" placeholder="Search by genre">
+   </div>
+   <div class="form-group">
+      <label>Actors</label>
+      <input class="form-control" id="actorSearch" aria-describedby="actorsSearch" placeholder="Search by actor">
+   </div>
+   <div class="form-group">
+      <label>Director</label>
+      <input class="form-control" id="directorSearch" aria-describedby="directorSearch" placeholder="Search by directir">
+   </div>
+   <button onclick="searchFilm()" class="btn btn-primary">Search</button>
+   <button asp-controller="Home" asp-action="GetSuggestion" class="btn btn-primary">GetSuggestion</button>
 
-    <script src="~/js/filmScripts.js"></script>
+   <h2>Statistics</h2>
+   <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+         Statistics
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+         <input type="date" class="form-control dropdown-item" id="startDate" placeholder="StartDate">
+         <ul>
+            <li> <a onclick="getTopActor()" class="dropdown-item">GetTopRatedActor</a>                                                      </li>
+            <li> <a onclick="getBestActor()" class="dropdown-item">GetBestActor</a>                                                         </li>
+            <li> <a onclick="getBestDirector()" class="dropdown-item">GetBestDirector</a>                                                   </li>
+            <li> <a onclick="getTopDirector()" class="dropdown-item">GetTopRatedDiretcor</a>                                                </li>
+            <li> <a asp-controller="Home" asp-action="GetTopRatedFilm" class="dropdown-item">GetTopRatedFilm</a>                            </li>
+            <li> <a asp-controller="Home" asp-action="GetBestFilm" asp-route-date="getDate()" class="dropdown-item">GetBestFilm</a>          </li>
+            <li> <a asp-controller="Home" asp-action="GetAwardedFilm" asp-route-date="getDate()" class="dropdown-item">GetAwardedFilm</a>   </li>
+            <li> <a onclick="getPopGenre()" class="dropdown-item">GetMostPopularGenre</a>                                                   </li>
+            <li> <a onclick="getTopReward()" class="dropdown-item">GetTopReward</a>                                                         </li>
+            <li> <a onclick="getActiveUser()" class="dropdown-item">GetMostActiveUser</a>                                                   </li>
+         </ul>
+      </div>
+   </div>
+
+   <script src="~/js/filmScripts.js"></script>
 </div>
 
 <div class="card" id="bestActor" style="width: 18rem; display:none">
-    <div class="card-body">
-        <h5 class="card-title">Most Popular Actor</h5>
-        <p id="bestActorName" class="card-text"></p>
-        <p id="bestActorRate" class="card-text"></p>
-    </div>
+   <div class="card-body">
+      <h5 class="card-title">Most Popular Actor</h5>
+      <p id="bestActorName" class="card-text"></p>
+      <p id="bestActorRate" class="card-text"></p>
+   </div>
 </div>
 
 <div class="card" id="topActor" style="width: 18rem; display:none">
-    <div class="card-body">
-        <h5 class="card-title">Top Rated Actor</h5>
-        <p id="topActorName" class="card-text"></p>
-        <p id="topActorRate" class="card-text"></p>
-    </div>
+   <div class="card-body">
+      <h5 class="card-title">Top Rated Actor</h5>
+      <p id="topActorName" class="card-text"></p>
+      <p id="topActorRate" class="card-text"></p>
+   </div>
 </div>
 
 <div class="card" id="bestDirector" style="width: 18rem; display:none">
-    <div class="card-body">
-        <h5 class="card-title">Most Popular Director</h5>
-        <p id="bestDirectorName" class="card-text"></p>
-        <p id="bestDirectorRate" class="card-text"></p>
-    </div>
+   <div class="card-body">
+      <h5 class="card-title">Most Popular Director</h5>
+      <p id="bestDirectorName" class="card-text"></p>
+      <p id="bestDirectorRate" class="card-text"></p>
+   </div>
 </div>
 
 <div class="card" id="topDirector" style="width: 18rem; display:none">
-    <div class="card-body">
-        <h5 class="card-title">Top Rated Director</h5>
-        <p id="topDirectorName" class="card-text"></p>
-        <p id="topDirectorRate" class="card-text"></p>
-    </div>
+   <div class="card-body">
+      <h5 class="card-title">Top Rated Director</h5>
+      <p id="topDirectorName" class="card-text"></p>
+      <p id="topDirectorRate" class="card-text"></p>
+   </div>
 </div>
 
 <div class="card" id="popularGenre" style="width: 18rem; display:none">
-    <div class="card-body">
-        <h5 class="card-title">Most Popular Genre</h5>
-        <p id="popularGenreName" class="card-text"></p>
-    </div>
+   <div class="card-body">
+      <h5 class="card-title">Most Popular Genre</h5>
+      <p id="popularGenreName" class="card-text"></p>
+   </div>
 </div>
 
 <div class="card" id="topReward" style="width: 18rem; display:none">
-    <div class="card-body">
-        <h5 class="card-title">Most Prestigious Reward</h5>
-        <p id="topRewardName" class="card-text"></p>
-    </div>
+   <div class="card-body">
+      <h5 class="card-title">Most Prestigious Reward</h5>
+      <p id="topRewardName" class="card-text"></p>
+   </div>
 </div>
 
 <div class="card" id="activeUser" style="width: 18rem; display:none">
-    <div class="card-body">
-        <h5 class="card-title">Most Active User</h5>
-        <p id="activeUserName" class="card-text"></p>
-    </div>
+   <div class="card-body">
+      <h5 class="card-title">Most Active User</h5>
+      <p id="activeUserName" class="card-text"></p>
+   </div>
 </div>
+
+
+<button class="open-button" onclick="openForm()">Chat</button>
+
+<div class="chat-popup" id="myForm">
+   <h1>Chat</h1>
+   <div class="form-container">
+      <ul id="messagesList"></ul>
+      <input type="text" id="userInput" value="@User.Identity.Name" readonly style="display:none"  />
+      <textarea placeholder="Type message.." id="messageInput" required></textarea>
+      <button id="sendButton" class="btn">Send</button>
+      <button class="btn cancel" onclick="closeForm()">Close</button>
+   </div>
+</div>
+<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/Chat.js"></script>

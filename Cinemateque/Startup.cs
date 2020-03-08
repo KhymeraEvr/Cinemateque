@@ -2,6 +2,7 @@
 using Cinemateque.DataAccess;
 using Cinemateque.Middleware;
 using Cinemateque.Models;
+using Cinemateque.Signalr;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -45,6 +46,7 @@ namespace Cinemateque
          services.AddSingleton( Configuration );
 
          services.AddMvc().SetCompatibilityVersion( CompatibilityVersion.Version_2_1 );
+         services.AddSignalR();
       }
       
 
@@ -64,6 +66,10 @@ namespace Cinemateque
          app.UseHttpsRedirection();
          app.UseStaticFiles();
          app.UseCookiePolicy();
+         app.UseSignalR( routes =>
+         {
+            routes.MapHub<ChatHub>( "/chatHub" );
+         } );
 
          app.UseCors( x => x
              .AllowAnyOrigin()
