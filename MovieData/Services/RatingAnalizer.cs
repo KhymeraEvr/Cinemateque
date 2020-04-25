@@ -25,38 +25,53 @@ namespace MovieData.Services
       {
          foreach (var actor in casts)
          {
-            var model = await GetActorRating(actor);
             var actorEntity = _context.Actors.FirstOrDefault(a => a.ActorName == actor.Name);
-            if (actorEntity != null)
+            if (actorEntity == null)
             {
-               var totalChecks = model.FilmsChecked + actorEntity.FilmsChecked;
-               model.Rating = (actorEntity.Rating + model.Rating) / totalChecks;
+               actorEntity = new Actor
+               {
+                  ActorName = actor.Name
+               };
             }
-            var addResult = await _context.Actors.AddAsync(model);
+            else
+            {
+               continue;
+            }
+
+            var model = await GetActorRating(actorEntity, actor);
+
+            if (model.Ratings.Count >= 10)
+            {
+               var updateResult = await _context.Actors.AddAsync(model);
+            }
          }
 
          await _context.SaveChangesAsync();
       }
 
-      public async Task<Actor> GetActorRating(CastModel actor)
+      public async Task<Actor> GetActorRating( Actor entity, CastModel actor)
       {
-         var actorMovies = await _movieService.GetActorMovies(actor.Id.ToString());
-         double totalRatings = 0;
+         var ratingModels = new List<ActorRatingEntry>();
+
+         var actorMovies = await _movieService.GetActorMovies(actor.Id.ToString());         
          foreach (var film in actorMovies)
          {
-            totalRatings += film.VoteAverage;
+            if( string.IsNullOrEmpty(film.ReleaseDate) )
+            {
+               continue;
+            }
+            var entry = new ActorRatingEntry
+            {
+               Date = DateTime.Parse(film.ReleaseDate),
+               Rating = film.VoteAverage
+            };
+
+            ratingModels.Add(entry);
          }
 
-         var moviesCount = actorMovies.Count();
-         var average = totalRatings / moviesCount;
-         var actorModel = new Actor
-         {
-            ActorName = actor.Name,
-            FilmsChecked = moviesCount,
-            Rating = average
-         };
-         
-         return actorModel;
+         entity.Ratings = ratingModels;
+
+         return entity;
       }
    }
 }

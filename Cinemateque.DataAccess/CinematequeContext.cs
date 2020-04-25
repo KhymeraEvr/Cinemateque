@@ -1,8 +1,6 @@
 ﻿using System;
 using Cinemateque.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Configuration;
 
 namespace Cinemateque.DataAccess
 {
@@ -10,6 +8,7 @@ namespace Cinemateque.DataAccess
    {
       public CinematequeContext()
       {
+         Database.EnsureCreated();
       }
 
       public CinematequeContext(DbContextOptions<CinematequeContext> options)

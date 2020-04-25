@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinemateque.DataAccess.Migrations
 {
     [DbContext(typeof(CinematequeContext))]
-    [Migration("20200222203713_cinemateque2")]
-    partial class cinemateque2
+    [Migration("20200329173938_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -30,11 +30,47 @@ namespace Cinemateque.DataAccess.Migrations
                     b.Property<string>("ActorName")
                         .HasMaxLength(30);
 
-                    b.Property<int?>("Rating");
-
                     b.HasKey("Id");
 
                     b.ToTable("Actors");
+                });
+
+            modelBuilder.Entity("Cinemateque.DataAccess.Models.ActorRatingEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("ActorId");
+
+                    b.Property<DateTime>("Date");
+
+                    b.Property<double?>("Rating");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorId");
+
+                    b.ToTable("ActorRatingEntry");
+                });
+
+            modelBuilder.Entity("Cinemateque.DataAccess.Models.CrewMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("FilmsChecked");
+
+                    b.Property<string>("Job");
+
+                    b.Property<string>("Name");
+
+                    b.Property<double?>("Rating");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CrewMembers");
                 });
 
             modelBuilder.Entity("Cinemateque.DataAccess.Models.Director", b =>
@@ -46,7 +82,9 @@ namespace Cinemateque.DataAccess.Migrations
                     b.Property<string>("DirectorName")
                         .HasMaxLength(50);
 
-                    b.Property<int?>("Rating");
+                    b.Property<int>("FilmsChecked");
+
+                    b.Property<double?>("Rating");
 
                     b.HasKey("Id");
 
@@ -192,6 +230,13 @@ namespace Cinemateque.DataAccess.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserFilms");
+                });
+
+            modelBuilder.Entity("Cinemateque.DataAccess.Models.ActorRatingEntry", b =>
+                {
+                    b.HasOne("Cinemateque.DataAccess.Models.Actor", "Actor")
+                        .WithMany("Ratings")
+                        .HasForeignKey("ActorId");
                 });
 
             modelBuilder.Entity("Cinemateque.DataAccess.Models.Film", b =>

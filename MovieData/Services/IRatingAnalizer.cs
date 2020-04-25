@@ -8,6 +8,6 @@ namespace MovieData.Services
    public interface IRatingAnalizer
    {
       Task AnalizeActors(IEnumerable<CastModel> casts);
-      Task<Actor> GetActorRating(CastModel actor);
+      Task<Actor> GetActorRating( Actor entity, CastModel actor);
    }
 }

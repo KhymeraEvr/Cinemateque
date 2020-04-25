@@ -41,9 +41,6 @@
                @film.Actors.Aggregate( ( a, b ) => a.ToString() + ", " + b.ToString() );
             </td>
             <td>
-               @if ( film.Awards.Count() != 0 ) { film.Awards.Aggregate( ( a, b ) => a.ToString() + ", " + b.ToString() ); }
-            </td>
-            <td>
                <div class="dropdown">
                   <select onchange="rate(this)" data-assigned-id="@film.FilmId" class="form-control form-control" id="status">
                      <option> 1 </option>

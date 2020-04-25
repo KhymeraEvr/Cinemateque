@@ -4,36 +4,52 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Cinemateque.DataAccess.Migrations
 {
-    public partial class Orders : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Actor",
+                name: "Actors",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    ActorName = table.Column<string>(maxLength: 30, nullable: true),
-                    Rating = table.Column<int>(nullable: true)
+                    ActorName = table.Column<string>(maxLength: 30, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Actor", x => x.Id);
+                    table.PrimaryKey("PK_Actors", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Director",
+                name: "CrewMembers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Job = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: true),
+                    Rating = table.Column<double>(nullable: true),
+                    FilmsChecked = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CrewMembers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Directors",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     DirectorName = table.Column<string>(maxLength: 50, nullable: true),
-                    Rating = table.Column<int>(nullable: true)
+                    Rating = table.Column<double>(nullable: true),
+                    FilmsChecked = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Director", x => x.Id);
+                    table.PrimaryKey("PK_Directors", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -54,28 +70,48 @@ namespace Cinemateque.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ActorRatingEntry",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    ActorId = table.Column<int>(nullable: true),
+                    Date = table.Column<DateTime>(nullable: false),
+                    Rating = table.Column<double>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ActorRatingEntry", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ActorRatingEntry_Actors_ActorId",
+                        column: x => x.ActorId,
+                        principalTable: "Actors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Film",
                 columns: table => new
                 {
-                    FilmName = table.Column<string>(maxLength: 50, nullable: false),
-                    Genre = table.Column<string>(maxLength: 50, nullable: true),
-                    PremiereDate = table.Column<DateTime>(type: "datetime", nullable: true),
+                    FilmName = table.Column<string>(nullable: true),
+                    Genre = table.Column<string>(nullable: true),
+                    PremiereDate = table.Column<DateTime>(nullable: true),
                     DirectorId = table.Column<int>(nullable: true),
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Rating = table.Column<int>(nullable: true),
-                    Price = table.Column<double>(nullable: false),
-                    ImageUrl = table.Column<string>(nullable: true),
-                    Discount = table.Column<float>(nullable: false),
-                    Views = table.Column<int>(nullable: false)
+                    Price = table.Column<double>(nullable: true),
+                    Image = table.Column<string>(nullable: true),
+                    Discount = table.Column<double>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Film", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Film_Director",
+                        name: "FK_Film_Directors_DirectorId",
                         column: x => x.DirectorId,
-                        principalTable: "Director",
+                        principalTable: "Directors",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -93,13 +129,13 @@ namespace Cinemateque.DataAccess.Migrations
                 {
                     table.PrimaryKey("PK_FilmActors", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FilmActors_Actor",
+                        name: "FK_FilmActors_Actors_ActorId",
                         column: x => x.ActorId,
-                        principalTable: "Actor",
+                        principalTable: "Actors",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_FilmActors_Film",
+                        name: "FK_FilmActors_Film_FilmId",
                         column: x => x.FilmId,
                         principalTable: "Film",
                         principalColumn: "Id",
@@ -113,14 +149,14 @@ namespace Cinemateque.DataAccess.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     FilmId = table.Column<int>(nullable: true),
-                    Date = table.Column<DateTime>(type: "date", nullable: true),
-                    RewardName = table.Column<string>(maxLength: 50, nullable: true)
+                    Date = table.Column<DateTime>(nullable: true),
+                    RewardName = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FilmReward", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FilmReward_Film1",
+                        name: "FK_FilmReward_Film_FilmId",
                         column: x => x.FilmId,
                         principalTable: "Film",
                         principalColumn: "Id",
@@ -184,6 +220,11 @@ namespace Cinemateque.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_ActorRatingEntry_ActorId",
+                table: "ActorRatingEntry",
+                column: "ActorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Film_DirectorId",
                 table: "Film",
                 column: "DirectorId");
@@ -227,6 +268,12 @@ namespace Cinemateque.DataAccess.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "ActorRatingEntry");
+
+            migrationBuilder.DropTable(
+                name: "CrewMembers");
+
+            migrationBuilder.DropTable(
                 name: "FilmActors");
 
             migrationBuilder.DropTable(
@@ -239,7 +286,7 @@ namespace Cinemateque.DataAccess.Migrations
                 name: "UserFilms");
 
             migrationBuilder.DropTable(
-                name: "Actor");
+                name: "Actors");
 
             migrationBuilder.DropTable(
                 name: "Film");
@@ -248,7 +295,7 @@ namespace Cinemateque.DataAccess.Migrations
                 name: "User");
 
             migrationBuilder.DropTable(
-                name: "Director");
+                name: "Directors");
         }
     }
 }
