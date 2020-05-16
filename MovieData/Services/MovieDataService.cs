@@ -65,15 +65,15 @@ namespace MovieData.Services
          return fileDir;
       }
 
-      public async Task SaveMovie(MovieDataModel movie)
+      public async Task SaveMovie(MovieDataEntity movie)
       {
          await _context.Movies.AddAsync(movie);
          await _context.SaveChangesAsync();
       }
 
-      public MovieDataModel GetMovie(int id)
+      public MovieDataEntity GetMovie(int id)
       {
-         var movie  = _context.Movies.FirstOrDefault( x => x.Id == id);
+         var movie  = _context.Movies.FirstOrDefault( x => x.MovieId == id);
 
          return movie;
       }

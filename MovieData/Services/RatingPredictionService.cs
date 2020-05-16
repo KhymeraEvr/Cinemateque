@@ -1,13 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Cinemateque.DataAccess.Models.Movie;
+using CsvHelper;
 using MoviesProcessing.Models;
 using MoviesProcessing.Services;
 
 namespace MovieData.Services
 {
-   public class RatingPredictionService
+   public class RatingPredictionService : IRatingPredictionService
    {
       private const int TakeProducers = 2;
       private const int TakeCrew = 7;
@@ -34,9 +37,17 @@ namespace MovieData.Services
       public async Task GetMovieRatingPrediction(int movieId)
       {
          var dataModel = await GetDataModel(movieId);
+
+         var fileDir = $"..\\MoviesCsvs\\{dataModel.Title}.csv";
+
+         using (var writer = new StreamWriter(fileDir))
+         using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+         {
+            csv.WriteRecord(dataModel);
+         }
       }
 
-      public async Task<MovieDataModel> GetDataModel(int movieId)
+      public async Task<MovieDataEntity> GetDataModel(int movieId)
       {
          var model = _movieDataService.GetMovie(movieId);
          if (model != null) return model;
@@ -62,19 +73,22 @@ namespace MovieData.Services
 
          var movieDataModel = new MovieDataModel
          {
-            Id = movieId,
-            ActorsCsvs = actorsCsvs.ToList(),
-            ActorsPopularity = actorsPopularity.ToList(),
-            CrewCsvs = crewMembersCsvs.ToList(),
-            CrewPopularity = crewPopularity.ToList(),
-            Genres = movieGenres.ToList(),
+            MovieId = movieId,
+            Title = movieDetails.Title,
+            ActorsCsvs = actorsCsvs.ToArray(),
+            ActorsPopularity = actorsPopularity.ToArray(),
+            CrewCsvs = crewMembersCsvs.ToArray(),
+            CrewPopularity = crewPopularity.ToArray(),
+            Genres = movieGenres.ToArray(),
             Budget = budget,
-            Companies = companies.ToList()
+            Companies = companies.ToArray()
          };
 
-         await _movieDataService.SaveMovie(movieDataModel);
+         var movieDataEntity = Map(movieDataModel);
 
-         return movieDataModel;
+         await _movieDataService.SaveMovie(movieDataEntity);
+
+         return movieDataEntity;
       }
 
       private async Task<IEnumerable<string>> GetActorsCsvs(IEnumerable<CastModel> actors)
@@ -142,6 +156,42 @@ namespace MovieData.Services
          }
 
          return results;
+      }
+
+      private MovieDataModel Map( MovieDataEntity entity )
+      {
+         var model = new MovieDataModel
+         {
+            MovieId = entity.MovieId,
+            Title = entity.Title,
+            ActorsCsvs = entity.ActorsCsvs.Split(';'),
+            ActorsPopularity = entity.ActorsPopularity.Split(';').Select(x => double.Parse(x)).ToArray(),
+            CrewCsvs = entity.CrewCsvs.Split(';'),
+            CrewPopularity = entity.CrewPopularity.Split(';').Select(x => double.Parse(x)).ToArray(),
+            Genres = entity.Genres.Split(';'),
+            Budget = entity.Budget,
+            Companies = entity.Companies.Split(';')
+         };
+
+         return model;
+      }
+
+      private MovieDataEntity Map(MovieDataModel model)
+      {
+         var entity = new MovieDataEntity
+         {
+            MovieId = model.MovieId,
+            Title = model.Title,
+            ActorsCsvs = string.Join(';', model.ActorsCsvs ),
+            ActorsPopularity = string.Join(';', model.ActorsPopularity),
+            CrewCsvs = string.Join(';', model.CrewCsvs),
+            CrewPopularity = string.Join(';', model.CrewPopularity ),
+            Genres = string.Join(';', model.Genres ),
+            Budget = model.Budget,
+            Companies = string.Join(';', model.Companies )
+         };
+
+         return entity;
       }
    }
 }

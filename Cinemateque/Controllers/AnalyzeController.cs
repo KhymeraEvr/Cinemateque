@@ -12,15 +12,18 @@ namespace Cinemateque.Controllers
       private readonly IMovieApiService _movieApiService;
       private readonly IRatingAnalizer _analizer;
       private readonly IMovieDataService _dataService;
+      private readonly IRatingPredictionService _ratingPrediction;
 
       public AnalyzeController(
          IMovieApiService movieApiService,
         IRatingAnalizer analizer,
-        IMovieDataService dataService)
+        IMovieDataService dataService,
+        IRatingPredictionService ratingPrediction)
       {
          _movieApiService = movieApiService;
          _analizer = analizer;
          _dataService = dataService;
+         _ratingPrediction = ratingPrediction;
       }
 
       [HttpGet("actors/{page}")]
@@ -43,9 +46,11 @@ namespace Cinemateque.Controllers
       }
 
       [HttpGet("movies/predict/{movieId}")]
-      public async Task<IActionResult> GetMovieRatingPrediction(string movieId)
+      public async Task<IActionResult> GetMovieRatingPrediction(int movieId)
       {
-         await _dataService.GetActorCsv(actorName);
+         await _ratingPrediction.GetMovieRatingPrediction( movieId );
+
+         return Ok();
       }
    }
 }

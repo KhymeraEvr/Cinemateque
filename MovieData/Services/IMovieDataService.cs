@@ -9,8 +9,8 @@ namespace MovieData.Services
 
       Task<string> GetCrewCsv(string crewName);
 
-      Task SaveMovie(MovieDataModel movie);
+      Task SaveMovie(MovieDataEntity movie);
 
-      MovieDataModel GetMovie(int id);
+      MovieDataEntity GetMovie(int id);
    }
 }

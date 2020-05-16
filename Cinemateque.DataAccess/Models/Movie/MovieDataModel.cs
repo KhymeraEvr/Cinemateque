@@ -1,23 +1,23 @@
-﻿using System.Collections.Generic;
-
-namespace Cinemateque.DataAccess.Models.Movie
+﻿namespace Cinemateque.DataAccess.Models.Movie
 {
    public class MovieDataModel
    {
-      public int Id { get; set; }
+      public int MovieId { get; set; }
 
-      public ICollection<string> ActorsCsvs { get; set; }
+      public string Title { get; set; }
 
-      public ICollection<double> ActorsPopularity { get; set; }
+      public string[] ActorsCsvs { get; set; }
 
-      public ICollection<string> CrewCsvs { get; set; }
+      public double[] ActorsPopularity { get; set; }
 
-      public ICollection<double> CrewPopularity { get; set; }
+      public string[] CrewCsvs { get; set; }
 
-      public ICollection<string> Genres { get; set; }
+      public double[] CrewPopularity { get; set; }
+
+      public string[] Genres { get; set; }
 
       public double Budget { get; set; }
-      
-      public ICollection<string> Companies { get; set; }
+
+      public string[] Companies { get; set; }
    }
 }

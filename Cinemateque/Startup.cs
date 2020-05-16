@@ -40,13 +40,13 @@ namespace Cinemateque
              options.UseSqlServer(Configuration["DbConnectionString"]));
 
          services.AddScoped<IUserService, UserService>();
-         services.AddScoped<IOrderService, OrderService>();
          services.AddScoped<IMovieApiService, MovieApiService>();
          services.AddScoped<IFilmService, FilmService>();
          services.AddScoped<IRatingAnalizer, RatingAnalizer>();
          services.AddScoped<IMovieDataService, MovieDataService>();
+         services.AddScoped<IRatingPredictionService, RatingPredictionService>();
          services.AddSingleton(Configuration);
-
+         
          services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
          services.AddSignalR();
       }

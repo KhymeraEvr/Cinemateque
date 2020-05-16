@@ -4,14 +4,16 @@ using Cinemateque.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Cinemateque.DataAccess.Migrations
 {
     [DbContext(typeof(CinematequeContext))]
-    partial class CinematequeContextModelSnapshot : ModelSnapshot
+    [Migration("20200516181851_movieModel")]
+    partial class movieModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -192,8 +194,6 @@ namespace Cinemateque.DataAccess.Migrations
                     b.Property<string>("CrewPopularity");
 
                     b.Property<string>("Genres");
-
-                    b.Property<int>("MovieId");
 
                     b.Property<string>("Title");
 
