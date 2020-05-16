@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MovieData.Services;
 using MoviesProcessing.Services;
@@ -42,6 +38,12 @@ namespace Cinemateque.Controllers
 
       [HttpGet("actors/data/{actorName}")]
       public async Task GetActorData(string actorName)
+      {
+         await _dataService.GetActorCsv(actorName);
+      }
+
+      [HttpGet("movies/predict/{movieId}")]
+      public async Task<IActionResult> GetMovieRatingPrediction(string movieId)
       {
          await _dataService.GetActorCsv(actorName);
       }

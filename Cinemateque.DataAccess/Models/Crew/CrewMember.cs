@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using Cinemateque.DataAccess.Models.Crew;
 
 namespace Cinemateque.DataAccess.Models
 {
@@ -9,7 +8,7 @@ namespace Cinemateque.DataAccess.Models
       public int Id { get; set; }
       public string Job { get; set; }
       public string Name { get; set; }
-      public double? Rating { get; set; }
+      public ICollection<CrewRatingEntry> Ratings { get; set; }
       public int FilmsChecked { get; set; }
 
    }

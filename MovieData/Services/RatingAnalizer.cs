@@ -1,12 +1,12 @@
-﻿using Cinemateque.DataAccess;
-using Cinemateque.DataAccess.Models;
-using MoviesProcessing.Models;
-using MoviesProcessing.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Cinemateque.DataAccess;
+using Cinemateque.DataAccess.Models;
+using Cinemateque.DataAccess.Models.Crew;
+using MoviesProcessing.Models;
+using MoviesProcessing.Services;
 
 namespace MovieData.Services
 {
@@ -49,18 +49,69 @@ namespace MovieData.Services
          await _context.SaveChangesAsync();
       }
 
-      public async Task<Actor> GetActorRating( Actor entity, CastModel actor)
+      public async Task AnalizeCrew(CrewModel crew)
+      {
+         var crewEntity = _context.CrewMembers.FirstOrDefault(a => a.Name == crew.Name);
+         if (crewEntity == null)
+         {
+            crewEntity = new CrewMember
+            {
+               Name = crew.Name
+            };
+         }
+         else
+         {
+            return;
+         }
+
+         var model = await GetCrewRatings(crewEntity, crew);
+
+         if (model.Ratings.Count >= 5)
+         {
+            var updateResult = await _context.CrewMembers.AddAsync(model);
+         }
+
+         await _context.SaveChangesAsync();
+      }
+
+      public async Task<Actor> GetActorRating(Actor entity, CastModel actor)
       {
          var ratingModels = new List<ActorRatingEntry>();
 
-         var actorMovies = await _movieService.GetActorMovies(actor.Id.ToString());         
+         var actorMovies = await _movieService.GetActorMovies(actor.Id.ToString());
          foreach (var film in actorMovies)
          {
-            if( string.IsNullOrEmpty(film.ReleaseDate) )
+            if (string.IsNullOrEmpty(film.ReleaseDate))
             {
                continue;
             }
             var entry = new ActorRatingEntry
+            {
+               Date = DateTime.Parse(film.ReleaseDate),
+               Rating = film.VoteAverage
+            };
+
+            ratingModels.Add(entry);
+         }
+
+         entity.Ratings = ratingModels;
+
+         return entity;
+      }
+
+      public async Task<CrewMember> GetCrewRatings(CrewMember entity, CrewModel crew)
+      {
+         var ratingModels = new List<CrewRatingEntry>();
+
+         var crewMovies = await _movieService.GetCrewMovies(crew.Id.ToString());
+
+         foreach (var film in crewMovies)
+         {
+            if (string.IsNullOrEmpty(film.ReleaseDate))
+            {
+               continue;
+            }
+            var entry = new CrewRatingEntry
             {
                Date = DateTime.Parse(film.ReleaseDate),
                Rating = film.VoteAverage

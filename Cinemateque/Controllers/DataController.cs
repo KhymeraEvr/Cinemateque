@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Cinemateque.DataAccess;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MovieData.Services;
 
 namespace Cinemateque.Controllers
 {
@@ -36,7 +33,7 @@ namespace Cinemateque.Controllers
       [HttpGet("actorsCleanUp")]
       public async Task<IActionResult> CleanupActors()
       {
-         var actors = _context.Actors.Include( x => x.Ratings ).Where(x => x.Ratings.Count < 10).ToList();
+         var actors = _context.Actors.Include(x => x.Ratings).Where(x => x.Ratings.Count < 10).ToList();
          foreach (var ac in actors)
          {
             if (ac.Ratings == null) continue;

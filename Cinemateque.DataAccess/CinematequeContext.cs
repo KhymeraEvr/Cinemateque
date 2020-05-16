@@ -1,5 +1,6 @@
 ﻿using System;
 using Cinemateque.DataAccess.Models;
+using Cinemateque.DataAccess.Models.Movie;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cinemateque.DataAccess
@@ -19,7 +20,7 @@ namespace Cinemateque.DataAccess
       public virtual DbSet<Actor> Actors { get; set; }
       public virtual DbSet<Director> Directors { get; set; }
       public virtual DbSet<CrewMember> CrewMembers { get; set; }
-      public virtual DbSet<Order> Order { get; set; }
+      public virtual DbSet<MovieDataModel> Movies { get; set; }
       public virtual DbSet<User> User { get; set; }
       public virtual DbSet<UserFilms> UserFilms { get; set; }
 
