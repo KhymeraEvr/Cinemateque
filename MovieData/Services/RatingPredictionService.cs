@@ -64,6 +64,10 @@ namespace MovieData.Services
          var genresFlags = GetGenresBools(movieGenres);
 
 
+         var actors = top10Actors.Select(x => x.Name).ToList();
+         var actorsPop = actorsPopularity.ToList();
+         var crews = crew.Select(x => x.Name).ToList();
+         var crewPop = crewPopularity.ToList();
          var budget = movieDetails.Budget;
 
          var companies = movieDetails.Companies.Select(x => x.Name);
@@ -73,10 +77,10 @@ namespace MovieData.Services
          {
             MovieId = movieId,
             Title = movieDetails.Title,
-            ActorsCsvs = actorsCsvs.ToArray(),
-            ActorsPopularity = actorsPopularity.ToArray(),
-            CrewCsvs = crewMembersCsvs.ToArray(),
-            CrewPopularity = crewPopularity.ToArray(),
+            ActorsCsvs = GetEnough( actors, 10).ToArray(),
+            ActorsPopularity = GetEnough(actorsPop, 10).ToArray(),
+            CrewCsvs = GetEnough(crews, TakeCrew).ToArray(),
+            CrewPopularity = GetEnough(crewPop, TakeCrew).ToArray(),
             Genres = movieGenres.ToArray(),
             Budget = budget,
             Companies = companies.ToArray(),
@@ -97,7 +101,7 @@ namespace MovieData.Services
 
          foreach (var actor in actors)
          {
-            var dir = await _movieDataService.GetActorCsv(actor.Name);
+            var dir = await _movieDataService.GetActorCsv(actor.Name, actor);
             results.Add(dir);
          }
 
@@ -145,6 +149,22 @@ namespace MovieData.Services
          return results;
       }
 
+      private List<T> GetEnough<T>(List<T> source, int amount)
+      {
+         if (source.Count() == 0) return new List<T>();
+
+         var list = source.Take(amount).ToList();
+         if (list.Count != amount)
+         {
+            while (list.Count != amount)
+            {
+               list.Add(source[0]);
+            }
+         }
+
+         return list;
+      }
+
       private async Task<IEnumerable<double>> GetCrewPopularity(IEnumerable<CrewModel> crews)
       {
          var results = new List<double>();
@@ -188,7 +208,9 @@ namespace MovieData.Services
             CrewPopularity = string.Join(';', model.CrewPopularity),
             Genres = string.Join(';', model.Genres),
             Budget = model.Budget,
-            Companies = string.Join(';', model.Companies)
+            Companies = string.Join(';', model.Companies),
+            CompaniesFlags = string.Join(';', model.CompaniesFlags),
+            GenresFlags = string.Join(';', model.GenresFlags)
          };
 
          return entity;

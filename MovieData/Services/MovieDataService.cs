@@ -4,26 +4,33 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Cinemateque.DataAccess;
+using Cinemateque.DataAccess.Models;
 using Cinemateque.DataAccess.Models.Movie;
 using CsvHelper;
 using Microsoft.EntityFrameworkCore;
+using MoviesProcessing.Models;
 
 namespace MovieData.Services
 {
    public class MovieDataService : IMovieDataService
    {
       private readonly CinematequeContext _context;
+      private readonly IRatingAnalizer _ratingAnalizer;
 
-      public MovieDataService(CinematequeContext context)
+      public MovieDataService(CinematequeContext context, IRatingAnalizer ratingAnalizer)
       {
          _context = context;
+         _ratingAnalizer = ratingAnalizer;
       }
 
-      public async Task<string> GetActorCsv(string actorName)
+      public async Task<string> GetActorCsv(string actorName, CastModel actorModel = null)
       {
          var actor = _context.Actors.Include(ac => ac.Ratings).FirstOrDefault(x => x.ActorName == actorName);
 
-         if (actor == null) throw new KeyNotFoundException();
+         if (actor == null)
+         {
+            actor = await WhereIsThatOldNastyDog(actorModel);
+         };
 
          var csvData = actor.Ratings.Select(x => new
          {
@@ -73,9 +80,23 @@ namespace MovieData.Services
 
       public MovieDataEntity GetMovie(int id)
       {
-         var movie  = _context.Movies.FirstOrDefault( x => x.MovieId == id);
+         var movie = _context.Movies.FirstOrDefault(x => x.MovieId == id);
 
          return movie;
+      }
+
+      private async Task<Actor> WhereIsThatOldNastyDog(CastModel actorModel)
+      {
+         if (actorModel == null) throw new KeyNotFoundException();
+
+         var actor = await _ratingAnalizer.AnalizeActor(actorModel);
+
+         if (actor.Ratings.Count >= 10)
+         {
+            var updateResult = await _context.Actors.AddAsync(actor);
+         }
+
+         return actor;
       }
    }
 }

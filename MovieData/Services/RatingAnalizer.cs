@@ -28,20 +28,9 @@ namespace MovieData.Services
       {
          foreach (var actor in casts)
          {
-            var actorEntity = _context.Actors.FirstOrDefault(a => a.ActorName == actor.Name);
-            if (actorEntity == null)
-            {
-               actorEntity = new Actor
-               {
-                  ActorName = actor.Name
-               };
-            }
-            else
-            {
-               continue;
-            }
+            var model = await AnalizeActor(actor);
 
-            var model = await GetActorRating(actorEntity, actor);
+            if (model == null) continue;  
 
             if (model.Ratings.Count >= 10)
             {
@@ -50,6 +39,26 @@ namespace MovieData.Services
          }
 
          await _context.SaveChangesAsync();
+      }
+
+      public async Task<Actor> AnalizeActor(CastModel actor)
+      {
+         var actorEntity = _context.Actors.FirstOrDefault(a => a.ActorName == actor.Name);
+         if (actorEntity == null)
+         {
+            actorEntity = new Actor
+            {
+               ActorName = actor.Name
+            };
+         }
+         else
+         {
+            return null;
+         }
+
+         var model = await GetActorRating(actorEntity, actor);
+
+         return model;
       }
 
       public async Task AnalizeCrew(CrewModel crew)

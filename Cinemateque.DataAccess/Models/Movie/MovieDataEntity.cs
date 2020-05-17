@@ -21,5 +21,9 @@
       public double Budget { get; set; }
 
       public string Companies { get; set; }
+
+      public string GenresFlags { get; set; }
+
+      public string CompaniesFlags { get; set; }
    }
 }
