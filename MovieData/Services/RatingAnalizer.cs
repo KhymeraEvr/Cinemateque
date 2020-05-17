@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Cinemateque.DataAccess;
 using Cinemateque.DataAccess.Models;
 using Cinemateque.DataAccess.Models.Crew;
+using CsvHelper;
 using MoviesProcessing.Models;
 using MoviesProcessing.Services;
 
@@ -123,6 +126,58 @@ namespace MovieData.Services
          entity.Ratings = ratingModels;
 
          return entity;
+      }
+
+      public async Task<IEnumerable<string>> GetProductionCompanies()
+      {
+         var movies1 = await _movieService.GetTopRatedMoves(1);
+         var movies2 = await _movieService.GetTopRatedMoves(2);
+         var movies3 = await _movieService.GetTopRatedMoves(3);
+         var movies4 = await _movieService.GetTopRatedMoves(4);
+         var movies5 = await _movieService.GetTopRatedMoves(5);
+
+         var movies = movies1.Concat(movies2).Concat(movies3);
+
+         var moviesDetails = new List<MovieDetails>();
+
+         foreach (var movie in movies)
+         {
+            var details = await _movieService.GetMovieDetails(movie.Id.ToString());
+            moviesDetails.Add(details);
+         }
+
+         var companies = moviesDetails.SelectMany(x => x.Companies).OrderBy(x => x.Name).ToList();
+
+         var compsCount = new Dictionary<string, int>();
+
+         for (int i = 0; i < companies.Count; i++)
+         {
+            int j = i;
+            compsCount[companies[j].Name] = 1;
+            while (j < companies.Count && companies[j].Name == companies[i].Name)
+            {
+               compsCount[companies[j].Name] += 1;
+               j++;
+            }
+            i = j - 1;
+         }
+
+         var comps = compsCount.Where(x => x.Value > 2).Select(x => x.Key);
+
+         var res = new
+         {
+            Companies = comps
+         };
+
+         var fileDir = $"..\\companiesList.csv";
+
+         using (var writer = new StreamWriter(fileDir))
+         using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+         {
+            csv.WriteRecords(res.Companies);
+         }
+
+         return compsCount.Keys;
       }
    }
 }

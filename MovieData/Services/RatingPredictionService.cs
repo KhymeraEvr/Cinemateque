@@ -15,11 +15,6 @@ namespace MovieData.Services
       private const int TakeProducers = 2;
       private const int TakeCrew = 7;
 
-      private readonly HashSet<string> Jobs = new HashSet<string>
-      {
-         "director", "screenplay", "story", "original music composer"
-      };
-
       private readonly IMovieApiService _movieApiService;
       private readonly IMovieDataService _movieDataService;
       private readonly IRatingAnalizer _ratingAnalizer;
@@ -66,10 +61,13 @@ namespace MovieData.Services
          var crewPopularity = await GetCrewPopularity(crew);
 
          var movieGenres = movieDetails.Genres.Select(x => x.Name);
+         var genresFlags = GetGenresBools(movieGenres);
+
 
          var budget = movieDetails.Budget;
 
          var companies = movieDetails.Companies.Select(x => x.Name);
+         var companiesFlags = GetCompaniesBools(companies);
 
          var movieDataModel = new MovieDataModel
          {
@@ -81,7 +79,9 @@ namespace MovieData.Services
             CrewPopularity = crewPopularity.ToArray(),
             Genres = movieGenres.ToArray(),
             Budget = budget,
-            Companies = companies.ToArray()
+            Companies = companies.ToArray(),
+            GenresFlags = genresFlags.ToArray(),
+            CompaniesFlags = companiesFlags.ToArray()
          };
 
          var movieDataEntity = Map(movieDataModel);
@@ -124,7 +124,7 @@ namespace MovieData.Services
 
       private IEnumerable<CrewModel> FilterCrew(IEnumerable<CrewModel> crews)
       {
-         var crew = crews.Where(x => Jobs.Contains(x.Job.ToLower()));
+         var crew = crews.Where(x => ListsProvider.Jobs.Contains(x.Job.ToLower()));
          var producers = crew.Where(x => x.Job.ToLower() == "Producer").Take(TakeProducers);
 
          var result = crew.Concat(producers).OrderBy(x => x.Job).Take(TakeCrew);
@@ -158,7 +158,7 @@ namespace MovieData.Services
          return results;
       }
 
-      private MovieDataModel Map( MovieDataEntity entity )
+      private MovieDataModel Map(MovieDataEntity entity)
       {
          var model = new MovieDataModel
          {
@@ -182,16 +182,42 @@ namespace MovieData.Services
          {
             MovieId = model.MovieId,
             Title = model.Title,
-            ActorsCsvs = string.Join(';', model.ActorsCsvs ),
+            ActorsCsvs = string.Join(';', model.ActorsCsvs),
             ActorsPopularity = string.Join(';', model.ActorsPopularity),
             CrewCsvs = string.Join(';', model.CrewCsvs),
-            CrewPopularity = string.Join(';', model.CrewPopularity ),
-            Genres = string.Join(';', model.Genres ),
+            CrewPopularity = string.Join(';', model.CrewPopularity),
+            Genres = string.Join(';', model.Genres),
             Budget = model.Budget,
-            Companies = string.Join(';', model.Companies )
+            Companies = string.Join(';', model.Companies)
          };
 
          return entity;
+      }
+
+      private IEnumerable<int> GetGenresBools(IEnumerable<string> genres)
+      {
+         var n = ListsProvider.Genres.Count;
+         var res = new int[n];
+
+         for (int i = 0; i < n; i++)
+         {
+            res[i] = genres.Contains(ListsProvider.Genres[i]) ? 1 : 0;
+         }
+
+         return res;
+      }
+
+      private IEnumerable<int> GetCompaniesBools(IEnumerable<string> companies)
+      {
+         var n = ListsProvider.Companies.Count;
+         var res = new int[n];
+
+         for (int i = 0; i < n; i++)
+         {
+            res[i] = companies.Contains(ListsProvider.Companies[i]) ? 1 : 0;
+         }
+
+         return res;
       }
    }
 }

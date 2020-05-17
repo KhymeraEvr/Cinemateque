@@ -16,8 +16,12 @@
 
       public string[] Genres { get; set; }
 
+      public int[] GenresFlags { get; set; }
+
       public double Budget { get; set; }
 
       public string[] Companies { get; set; }
+
+      public int[] CompaniesFlags { get; set; }
    }
 }

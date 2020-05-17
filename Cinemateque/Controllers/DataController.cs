@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Cinemateque.DataAccess;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MovieData.Services;
+using MoviesProcessing.Services;
 
 namespace Cinemateque.Controllers
 {
@@ -12,10 +14,17 @@ namespace Cinemateque.Controllers
    public class DataController : ControllerBase
    {
       private readonly CinematequeContext _context;
+      private readonly IRatingAnalizer _analizer;
+      private readonly IMovieApiService _movieApiService;
 
-      public DataController(CinematequeContext context)
+      public DataController(
+         CinematequeContext context,
+         IRatingAnalizer analizer,
+         IMovieApiService movieApiService)
       {
          _context = context;
+         _analizer = analizer;
+         _movieApiService = movieApiService;
       }
 
       [HttpGet("actors")]
@@ -28,6 +37,23 @@ namespace Cinemateque.Controllers
 
 
          return Ok(actors5);
+      }
+
+      [HttpGet("companies")]
+      public async Task<IActionResult> GetCompanies()
+      {
+         var companies = await _analizer.GetProductionCompanies();
+
+         return Ok(companies);
+      }
+
+      [HttpGet("genres")]
+      public async Task<IActionResult> GetGenres()
+      {
+         var gernres = await _movieApiService.GetGenres();
+         var list = gernres.Select(x => x.Name);
+
+         return Ok(list);
       }
 
       [HttpGet("actorsCleanUp")]
