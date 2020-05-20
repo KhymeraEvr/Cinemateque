@@ -1,6 +1,4 @@
-﻿<h2 id="favorites"></h2>
-
-<div id="maybe">
+﻿<div id="maybe">
     <h2>Search</h2>
     <div class="form-group">
         <label>Name</label>
@@ -19,15 +17,6 @@
         <input class="form-control" id="directorSearch" aria-describedby="directorSearch" placeholder="Search by directir">
     </div>
     <button onclick="searchFilm()" class="btn btn-primary">Search</button>
-    <a asp-controller="Home" asp-action="GetSuggestion" class="btn btn-primary">GetSuggestion</a>
-    <a onclick="getFavorites()" class="btn btn-primary">GetFavorites</a>
-    <h2>Statistics</h2>
-    <div class="dropdown">
-        <button style="width:80%" class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Statistics
-        </button>
-
-    </div>
 
     <script src="~/js/filmScripts.js"></script>
 

@@ -1,14 +1,14 @@
-﻿using Cinemateque.Data;
-using Cinemateque.DataAccess.Models;
-using Cinemateque.Models;
-using Microsoft.AspNetCore.Mvc;
-using Cinemateque.Signalr;
-using Microsoft.AspNetCore.SignalR;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Cinemateque.Data;
+using Cinemateque.DataAccess.Models;
+using Cinemateque.Models;
+using Microsoft.AspNetCore.Mvc;
+using MoviesProcessing.Models;
+using MoviesProcessing.Services;
 
 namespace Cinemateque.Controllers
 {
@@ -16,7 +16,8 @@ namespace Cinemateque.Controllers
    {
       private readonly IFilmService _serv;
       private readonly IUserService _userService;
-      private readonly IHubContext<ChatHub> _hub;
+      private readonly IMovieApiService _movieApiService;
+      private readonly ICachedGenresService _genres;
 
       private int _userId;
 
@@ -31,15 +32,13 @@ namespace Cinemateque.Controllers
       }
 
       public HomeController(
-         IFilmService service,
          IUserService userService,
-         IHubContext<ChatHub> hub
- )
+         IMovieApiService movieApiService,
+         ICachedGenresService genres)
       {
-         _serv = service;
          _userService = userService;
-         _hub = hub;
-
+         _movieApiService = movieApiService;
+         _genres = genres;
       }
 
       public async Task<IActionResult> Index()
@@ -47,7 +46,26 @@ namespace Cinemateque.Controllers
          return View();
       }
 
+      public async Task<IActionResult> Discover(int page)
+      {
+         var movies = await _movieApiService.GetDiscoverFilms();
+         await SetUpGenres(movies);
+         await _movieApiService.AddCreditsToMoves(movies);
+         return View(movies);
+      }
 
+      public async Task<IActionResult> TopMovies()
+      {
+         var movies = await _movieApiService.GetTopRatedMoves(1);
+         await SetUpGenres(movies);
+         await _movieApiService.AddCreditsToMoves(movies);
+         return View("Discover", movies.ToList());
+      }
+
+      public async Task<IActionResult> Search()
+      {
+         return View("Index");
+      }
 
       public IActionResult Library()
       {
@@ -67,9 +85,12 @@ namespace Cinemateque.Controllers
       }
 
       [HttpPost("search")]
-      public IActionResult SearchFilm([FromBody] SearchModel model)
+      public async Task<IActionResult> SearchFilm([FromBody] SearchModel model)
       {
-         return RedirectToAction("SearchTable", model);
+         var movies = await _movieApiService.Search(model.Name);
+         await SetUpGenres(movies);
+         await _movieApiService.AddCreditsToMoves(movies);
+         return View("Discover", movies.ToList());
       }
 
       [Route("History")]
@@ -142,16 +163,6 @@ namespace Cinemateque.Controllers
          return RedirectToAction("AddFilmForm");
       }
 
-      //[HttpGet("suggets")]
-      //public IActionResult GetSuggestion()
-      //{
-      //   List<FilmViewModel> fs = new List<FilmViewModel>();
-      //   var film = MapToViewModel(_serv.GetSuggestion(UserID));
-      //   fs.Add(film);
-
-      //   return View("FilmTable", fs);
-      //}
-
       [HttpGet("later/{filmId}")]
       public IActionResult AddWatchLater([FromRoute] int filmId)
       {
@@ -164,80 +175,16 @@ namespace Cinemateque.Controllers
          return Ok(_serv.AddWatched(Convert.ToInt32(UserID), filmId, rating).Id);
       }
 
-      //[HttpGet("bestActor/{date}")]
-      //public IActionResult GetBestActor([FromQuery] string date)
-      //{
-      //   DateTime? datetime = null;
-      //   if (date != null) datetime = Convert.ToDateTime(date);
-      //   var a = _serv.GetBestActor(datetime);
-      //   return Ok(new { Name = a.ActorName, Rate = a.Rating });
-
-      //}
-
-      [HttpGet("activeUser/{date}")]
-      public IActionResult GetMostActiveUser([FromQuery] string date)
+      private async Task SetUpGenres(IEnumerable<Movie> movies)
       {
-         DateTime? datetime = null;
-         if (date != null) datetime = Convert.ToDateTime(date);
-         var a = _serv.GetMostActiveUser(datetime);
-         return Ok(new { Name = a.UserName, Rate = a.Rating });
-      }
-
-      [HttpGet("bestDirector/{date}")]
-      public IActionResult GetBestDirector([FromQuery] string date)
-      {
-         DateTime? datetime = null;
-         if (date != null) datetime = Convert.ToDateTime(date);
-         var a = _serv.GetBestDirector(datetime);
-         return Ok(new { Name = a.DirectorName, Rate = a.Rating });
-      }
-      [HttpGet("ratedDirector")]
-      public IActionResult GetTopRatedDiretcor()
-      {
-         var a = _serv.GetTopRatedDiretcor();
-         return Ok(new { Name = a.DirectorName, Rate = a.Rating });
-      }
-      [HttpGet("ratedFilm")]
-      public IActionResult GetTopRatedFilm()
-      {
-         var bestFilms = _serv.GetTopRatedFilm();
-         List<FilmViewModel> fs = new List<FilmViewModel>();
-         fs.Add(MapToViewModel(bestFilms));
-
-         return View("FilmTable", fs);
-      }
-      //[HttpGet("bestFilm/{date}")]
-      //public IActionResult GetBestFilm([FromQuery] string date)
-      //{
-      //   DateTime? datetime = null;
-      //   if (date != null) datetime = Convert.ToDateTime(date);
-      //   var bestFilms = _serv.GetBestFilm(datetime);
-      //   List<FilmViewModel> fs = new List<FilmViewModel>();
-      //   foreach (var f in bestFilms)
-      //   {
-      //      fs.Add(MapToViewModel(f));
-      //   }
-
-      //   return View("FilmTable", fs);
-      //}
-      [HttpGet("awardedFilm/{date}")]
-      public IActionResult GetAwardedFilm([FromQuery] string date)
-      {
-         DateTime? datetime = null;
-         if (date != null) datetime = Convert.ToDateTime(date);
-         var bestFilms = _serv.GetAwardedFilm(datetime);
-         List<FilmViewModel> fs = new List<FilmViewModel>();
-         fs.Add(MapToViewModel(bestFilms));
-
-         return View("FilmTable", fs);
-      }
-      [HttpGet("popGenre/{date}")]
-      public IActionResult GetMostPopularGenre([FromQuery] string date)
-      {
-         DateTime? datetime = null;
-         if (date != null) datetime = Convert.ToDateTime(date);
-         var a = _serv.GetMostPopularGenre(datetime);
-         return Ok(new { Name = a });
+         foreach (var movie in movies)
+         {
+            movie.Genres = new List<string>();
+            foreach (var id in movie.GenreIds)
+            {
+               movie.Genres.Add(await _genres.GetGenreById(id));
+            }
+         }
       }
 
       private FilmViewModel MapToViewModel(Film film)

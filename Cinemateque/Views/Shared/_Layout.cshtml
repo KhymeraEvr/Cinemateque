@@ -26,30 +26,31 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Cinemateque</a>
+                <a asp-controller="Home" asp-action="Discover" class="navbar-brand">Cinemateque</a>
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li><a asp-controller="Home" asp-action="Index">Home</a></li>
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <li class="dropdown-item"><a asp-controller="Home" asp-action="SearchView">Search</a></li>
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li><a asp-controller="Home" asp-action="AddFilmForm">AddFilm</a></li>
-                            <li><a asp-controller="Home" asp-action="UpdateFilmForm">UpdateFilm</a></li>
-                            <li><a asp-controller="Home" asp-action="Library">Library</a></li>
-                            <li><a asp-controller="Home" asp-action="Edit">Edit Orders</a></li>
+               <ul class="nav navbar-nav">
+                  <li><a asp-controller="Home" asp-action="Index">Search</a></li>
+                  <li><a asp-controller="Home" asp-action="TopMovies">Top movies</a></li>
+                  @if (User.Identity.IsAuthenticated)
+                  {
+                     <li class="dropdown-item"><a asp-controller="Home" asp-action="SearchView">Search</a></li>
+                     @if (User.IsInRole("Admin"))
+                     {
+                        <li><a asp-controller="Home" asp-action="AddFilmForm">AddFilm</a></li>
+                        <li><a asp-controller="Home" asp-action="UpdateFilmForm">UpdateFilm</a></li>
+                        <li><a asp-controller="Home" asp-action="Library">Library</a></li>
+                        <li><a asp-controller="Home" asp-action="Edit">Edit Orders</a></li>
 
-                        }
+                     }
 
 
-                        <li class="dropdown-item"><a asp-controller="Home" asp-action="History">History</a></li>
-                        <li class="dropdown-item"><a asp-controller="Home" asp-action="Cart">Cart</a></li>
-                        <li class="dropdown-item"><a asp-controller="Home" asp-action="WatchLater">Watch Later</a></li>
+                     <li class="dropdown-item"><a asp-controller="Home" asp-action="History">History</a></li>
+                     <li class="dropdown-item"><a asp-controller="Home" asp-action="Cart">Cart</a></li>
+                     <li class="dropdown-item"><a asp-controller="Home" asp-action="WatchLater">Watch Later</a></li>
 
-                    }
-                </ul>
+                  }
+               </ul>
                 <ul class="nav navbar-nav" style="float:right; margin:0px">
                     <li>
                         @if (!User.Identity.IsAuthenticated)

@@ -45,6 +45,7 @@ namespace Cinemateque
          services.AddScoped<IRatingAnalizer, RatingAnalizer>();
          services.AddScoped<IMovieDataService, MovieDataService>();
          services.AddScoped<IRatingPredictionService, RatingPredictionService>();
+         services.AddScoped<ICachedGenresService, CachedGenresService>();
          services.AddSingleton(Configuration);
          
          services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -66,28 +67,28 @@ namespace Cinemateque
          app.UseHttpsRedirection();
          app.UseStaticFiles();
          app.UseCookiePolicy();
-         app.UseSignalR(routes =>
-        {
-           routes.MapHub<ChatHub>("/chatHub");
-        });
 
          app.UseCors(x => x
             .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
          app.UseAuthentication();
-         app.UseCookieValidationMidddleware();
+         app.UseCookieValidationMidddleware();         
          app.UseMvc(routes =>
          {
-            routes.MapRoute(
-               name: "api",
-               template: "api/{controller}")
+            routes
+
+            //.MapRoute(
+            //   name: "api",
+            //   template: "api/{controller}")
+
+               //.MapRoute(
+               //   name: "auth",
+               //   template: "users/authenticate",
+               //   defaults: new { controller = "Users", action = "Authenticate" }
+               //   )
+                
                .MapRoute(
-                  name: "auth",
-                  template: "users/authenticate",
-                  defaults: new { controller = "Users", action = "Authenticate" }
-                  )
-                  .MapRoute(
                   name: "default",
                   template: "{controller=Home}/{action=Index}/{id?}");
 

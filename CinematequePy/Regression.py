@@ -11,7 +11,7 @@ class Regres:
         self.fileName = fileName
         self.subjectName = fileName.format(self.fileName.split('.csv')[0])
 
-    def readFile(self):
+    def readFile(self, path):
         self.dataset = pd.read_csv("../{}".format(self.fileName))
         self.X = self.dataset.iloc[:, 1:2].values
         self.y = self.dataset.iloc[:, 2].values
