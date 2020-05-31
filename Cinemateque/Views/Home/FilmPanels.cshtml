@@ -21,9 +21,10 @@
                     <a href="#" class="btn btn-danger" onclick="addToCart(this)" data-assigned-id="@prod.FilmId">Add to cart</a>
                 </div>
                 <p>
-                    <a class="btn btn-primary" data-toggle="collapse" href="#@prod.FilmId" role="button" aria-expanded="false" aria-controls="collapseExample">
-                        Details
-                    </a>
+                   <a class="btn btn-primary" data-toggle="collapse" href="#@prod.FilmId" role="button" aria-expanded="false" aria-controls="collapseExample">
+                      Details
+                   </a>
+                   <h3><span class="label label-default">Rating: @prod.Rating </span></h3>
                 </p>
                 <div class="collapse" id="@prod.FilmId">
                     <ul style="list-style-type:none">

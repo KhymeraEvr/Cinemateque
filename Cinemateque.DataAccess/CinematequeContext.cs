@@ -23,6 +23,7 @@ namespace Cinemateque.DataAccess
       public virtual DbSet<MovieDataEntity> Movies { get; set; }
       public virtual DbSet<User> User { get; set; }
       public virtual DbSet<UserFilms> UserFilms { get; set; }
+      public virtual DbSet<Film> Film { get; set; }
 
       protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
       {
@@ -43,23 +44,6 @@ namespace Cinemateque.DataAccess
          {
             entity.Property(e => e.DirectorName).HasMaxLength(50);
          });                
-
-         modelBuilder.Entity<Order>(entity =>
-         {
-            entity.Property(e => e.Status).HasMaxLength(50);
-
-            entity.HasOne(d => d.Film)
-                   .WithMany(p => p.Order)
-                   .HasForeignKey(d => d.FilmId)
-                   .OnDelete(DeleteBehavior.ClientSetNull)
-                   .HasConstraintName("FK_Order_Film");
-
-            entity.HasOne(d => d.User)
-                   .WithMany(p => p.Order)
-                   .HasForeignKey(d => d.UserId)
-                   .OnDelete(DeleteBehavior.ClientSetNull)
-                   .HasConstraintName("FK_Order_User");
-         });
 
          modelBuilder.Entity<User>(entity =>
          {

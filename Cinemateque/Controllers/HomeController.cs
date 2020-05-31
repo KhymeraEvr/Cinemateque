@@ -32,10 +32,12 @@ namespace Cinemateque.Controllers
       }
 
       public HomeController(
+         IFilmService serv,
          IUserService userService,
          IMovieApiService movieApiService,
          ICachedGenresService genres)
       {
+         _serv = serv;
          _userService = userService;
          _movieApiService = movieApiService;
          _genres = genres;
@@ -62,6 +64,14 @@ namespace Cinemateque.Controllers
          return View("Discover", movies.ToList());
       }
 
+      public async Task<IActionResult> Upcoming()
+      {
+         var movies = await _movieApiService.GetUpdcoming(1);
+         await SetUpGenres(movies);
+         await _movieApiService.AddCreditsToMoves(movies);
+         return View("Discover", movies.ToList());
+      }
+
       public async Task<IActionResult> Search()
       {
          return View("Index");
@@ -72,22 +82,25 @@ namespace Cinemateque.Controllers
          return View();
       }
 
-      [Route("SearchTable")]
-      public IActionResult SearchTable(SearchModel model)
-      {
-         var fims = _serv.SearchFilms(model.Name, model.Genre, model.Director, model.Actor).ToList();
-         List<FilmViewModel> fs = new List<FilmViewModel>();
-         foreach (var f in fims)
-         {
-            fs.Add(MapToViewModel(f));
-         }
-         return View("FilmTable", fs);
-      }
-
       [HttpPost("search")]
       public async Task<IActionResult> SearchFilm([FromBody] SearchModel model)
       {
-         var movies = await _movieApiService.Search(model.Name);
+         var movies = new List<Movie>();
+         if (!string.IsNullOrEmpty( model.Name ))
+         {
+            var moviesName = await _movieApiService.Search(model.Name);
+            movies.AddRange(moviesName);
+         }
+
+         if (!string.IsNullOrEmpty(model.Director)
+            || !string.IsNullOrEmpty(model.Actor)
+            || !string.IsNullOrEmpty(model.Genre)
+            || model.Date.HasValue)
+         {
+            var fhdskjhkgddfsh = await _movieApiService.SearchByModel(model);
+            movies.AddRange(fhdskjhkgddfsh);
+         }
+
          await SetUpGenres(movies);
          await _movieApiService.AddCreditsToMoves(movies);
          return View("Discover", movies.ToList());
@@ -97,24 +110,15 @@ namespace Cinemateque.Controllers
       public IActionResult History()
       {
          var history = _serv.GetHistory(UserID);
-         List<FilmViewModel> fs = new List<FilmViewModel>();
-         foreach (var f in history)
-         {
-            fs.Add(MapToViewModel(f));
-         }
-         return View(fs);
+
+         return View(history.ToList());
       }
 
       [Route("WatchLater")]
       public IActionResult WatchLater()
       {
          var later = _serv.GetWatchLater(UserID);
-         List<FilmViewModel> fs = new List<FilmViewModel>();
-         foreach (var f in later)
-         {
-            fs.Add(MapToViewModel(f));
-         }
-         return View(later);
+         return View(later.ToList());
       }
 
       [Route("AddFilmForm")]
@@ -129,18 +133,6 @@ namespace Cinemateque.Controllers
       //   return Ok(_serv.Context.Director.ToList().Select(a => new { a.Id, a.DirectorName, a.Rating }));
       //}
 
-      [HttpGet("Home/films")]
-      public IActionResult GetFilms()
-      {
-         var films = _serv.GetFilms().ToList();
-         List<FilmViewModel> fs = new List<FilmViewModel>();
-         foreach (var f in films)
-         {
-            fs.Add(MapToViewModel(f));
-         }
-         return Ok(fs);
-      }
-
       [HttpGet("Home/user")]
       public IActionResult GetUsers()
       {
@@ -153,17 +145,7 @@ namespace Cinemateque.Controllers
          return Ok(_serv.Context.UserFilms.ToList().Select(a => new { a.Id, a.Film.FilmName, a.User.UserName, a.Status, a.Rating, a.Time }));
       }
 
-
-      [HttpPost]
-      public async Task<IActionResult> AddFilm([FromForm] AddFilmModel model)
-      {
-
-         await _serv.AddFilm(model);
-
-         return RedirectToAction("AddFilmForm");
-      }
-
-      [HttpGet("later/{filmId}")]
+      [HttpGet("Home/later/{filmId}")]
       public IActionResult AddWatchLater([FromRoute] int filmId)
       {
          return Ok(_serv.AddWatchLater(Convert.ToInt32(UserID), filmId)?.Id);
@@ -185,23 +167,6 @@ namespace Cinemateque.Controllers
                movie.Genres.Add(await _genres.GetGenreById(id));
             }
          }
-      }
-
-      private FilmViewModel MapToViewModel(Film film)
-      {
-
-         var userFilm = _serv.GetUserFilms().Where(uf => uf.UserId == UserID && uf.FilmId == film.Id).FirstOrDefault();
-         return new FilmViewModel
-         {
-            FilmId = film.Id,
-            FilmName = film.FilmName,
-            Genre = film.Genre,
-            Director = film.Director.DirectorName,
-            PremiereDate = film.PremiereDate.Value.ToShortDateString(),
-            UserRating = userFilm != null ? (int)(userFilm.Rating ?? 0) : 0,
-            Rating = film.Rating ?? 0,
-            Actors = _serv.GetFilmActors().Where(f => f.FilmId == film.Id).Select(a => a.Actor.ActorName).ToArray()
-         };
       }
    }
 }

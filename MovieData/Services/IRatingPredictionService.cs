@@ -7,5 +7,7 @@ namespace MovieData.Services
    {
       Task<MovieDataEntity> GetDataModel(int movieId);
       Task GetMovieRatingPrediction(int movieId);
+      Task GetDiscoverPageData(int page);
+      Task GetTopPageData(int page);
    }
 }

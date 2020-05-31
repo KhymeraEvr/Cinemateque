@@ -9,7 +9,7 @@ namespace MovieData.Services
    {
       Task AnalizeActors(IEnumerable<CastModel> casts);
       Task<Actor> GetActorRating( Actor entity, CastModel actor);
-      Task AnalizeCrew(CrewModel crew);
+      Task<CrewMember> AnalizeCrew(CrewModel crew);
       Task<IEnumerable<string>> GetProductionCompanies();
       Task<Actor> AnalizeActor(CastModel actor);
    }

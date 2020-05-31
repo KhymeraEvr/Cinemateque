@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Cinemateque.DataAccess;
 using Cinemateque.DataAccess.Models;
@@ -38,7 +40,8 @@ namespace MovieData.Services
             Date = x.Date.ToString("d")
          });
 
-         var fileDir = $"..\\ActorsCsvs\\{actorName}.csv";
+         var fileName = GetValidFileName(actorName);
+         var fileDir = $"..\\ActorsCsvs\\{fileName}.csv";
 
          using (var writer = new StreamWriter(fileDir))
          using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -49,11 +52,11 @@ namespace MovieData.Services
          return fileDir;
       }
 
-      public async Task<string> GetCrewCsv(string crewName)
+      public async Task<string> GetCrewCsv(string crewName, CrewModel crewModel = null)
       {
          var crew = _context.CrewMembers.Include(ac => ac.Ratings).FirstOrDefault(x => x.Name == crewName);
 
-         if (crew == null) throw new KeyNotFoundException();
+         if (crew == null) crew = await WhereIsThatOldNastyDog(crewModel);
 
          var csvData = crew.Ratings.Select(x => new
          {
@@ -61,7 +64,8 @@ namespace MovieData.Services
             Date = x.Date.ToString("d")
          });
 
-         var fileDir = $"..\\CrewCsvs\\{crewName}.csv";
+         var fileName = GetValidFileName(crewName);
+         var fileDir = $"..\\CrewCsvs\\{fileName}.csv";
 
          using (var writer = new StreamWriter(fileDir))
          using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -96,7 +100,25 @@ namespace MovieData.Services
             var updateResult = await _context.Actors.AddAsync(actor);
          }
 
+         await _context.SaveChangesAsync();
+
          return actor;
+      }
+
+      private async Task<CrewMember> WhereIsThatOldNastyDog(CrewModel actorModel)
+      {
+         if (actorModel == null) throw new KeyNotFoundException();
+
+         var actor = await _ratingAnalizer.AnalizeCrew(actorModel);
+
+         return actor;
+      }
+
+      private string GetValidFileName(string fileName)
+      {
+         // remove any invalid character from the filename.
+         String ret = Regex.Replace(fileName.Trim(), "[^A-Za-z0-9_. ]+", "");
+         return ret.Replace(" ", String.Empty);
       }
    }
 }

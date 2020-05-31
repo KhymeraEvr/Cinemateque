@@ -25,5 +25,9 @@
       public string GenresFlags { get; set; }
 
       public string CompaniesFlags { get; set; }
+
+      public string ReleaseDate { get; set; }
+
+      public double Rating { get; set; }
    }
 }

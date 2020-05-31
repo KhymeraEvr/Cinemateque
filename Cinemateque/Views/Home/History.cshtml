@@ -5,15 +5,15 @@
 
 <h2>History</h2>
 
-@model List<Cinemateque.Models.FilmViewModel>
+@model List<Cinemateque.DataAccess.Models.Film>
 
 <table class="table">
     <thead>
         <tr>
             <th scope="col">Film Name</th>
-            <th scope="col">Genre</th>
+            <th scope="col">Genres</th>
             <th scope="col">Premiere Date</th>
-            <th scope="col">Director</th>
+            <th scope="col">Crew</th>
             <th scope="col">Rating</th>
             <th scope="col">User Rating</th>
             <th scope="col">Actors</th>
@@ -27,13 +27,13 @@
                 <td scope="row">
                     @film.FilmName
                 </td>
-                <td>@film.Genre</td>
+                <td>@film.Genres</td>
                 <td>@film.PremiereDate</td>
                 <td>@film.Director</td>
                 <td>@film.Rating</td>
-                <td>@film.UserRating</td>
+                <td>@film.Rating</td>
                 <td>
-                    @film.Actors.Aggregate((a, b) => a.ToString() + ", " + b.ToString());
+                    @film.Actors;
                 </td>
             </tr>
         </tbody>

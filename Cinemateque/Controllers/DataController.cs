@@ -53,7 +53,7 @@ namespace Cinemateque.Controllers
          var gernres = await _movieApiService.GetGenres();
          var list = gernres.Select(x => x.Name);
 
-         return Ok(list);
+         return Ok(list );
       }
 
       [HttpGet("actorsCleanUp")]

@@ -2,7 +2,6 @@
 using Cinemateque.DataAccess;
 using Cinemateque.Middleware;
 using Cinemateque.Models;
-using Cinemateque.Signalr;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -45,9 +44,11 @@ namespace Cinemateque
          services.AddScoped<IRatingAnalizer, RatingAnalizer>();
          services.AddScoped<IMovieDataService, MovieDataService>();
          services.AddScoped<IRatingPredictionService, RatingPredictionService>();
+         services.AddScoped<IYouTubeService, YouTubeService>();
          services.AddScoped<ICachedGenresService, CachedGenresService>();
-         services.AddSingleton(Configuration);
-         
+         services.AddSingleton(Configuration); 
+
+
          services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
          services.AddSignalR();
       }

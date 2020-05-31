@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Cinemateque.DataAccess.Models.Movie;
 using CsvHelper;
@@ -29,11 +31,42 @@ namespace MovieData.Services
          _ratingAnalizer = ratingAnalizer;
       }
 
+      public async Task GetDiscoverPageData(int page)
+      {
+         var movies = await _movieApiService.GetDiscoverFilms(page);
+         foreach (var movie in movies)
+         {
+            try
+            {
+               await GetMovieRatingPrediction(movie.Id);
+            }
+            catch (Exception e)
+            {
+               using (System.IO.StreamWriter file =
+          new System.IO.StreamWriter("analyze.log", true))
+               {
+                  file.WriteLine(e.Message);
+               }
+            }
+            System.Threading.Thread.Sleep(5000);
+         }
+      }
+
+      public async Task GetTopPageData(int page)
+      {
+         var movies = await _movieApiService.GetTopRatedMoves(page);
+         foreach (var movie in movies)
+         {
+            await GetMovieRatingPrediction(movie.Id);
+            System.Threading.Thread.Sleep(5000);
+         }
+      }
+
       public async Task GetMovieRatingPrediction(int movieId)
       {
          var dataModel = await GetDataModel(movieId);
-
-         var fileDir = $"..\\MoviesCsvs\\{dataModel.Title}.csv";
+         var fileName = GetValidFileName(dataModel.Title);
+         var fileDir = $"..\\MoviesCsvs\\{fileName}.csv";
 
          using (var writer = new StreamWriter(fileDir))
          using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -77,7 +110,7 @@ namespace MovieData.Services
          {
             MovieId = movieId,
             Title = movieDetails.Title,
-            ActorsCsvs = GetEnough( actors, 10).ToArray(),
+            ActorsCsvs = GetEnough(actors, 10).ToArray(),
             ActorsPopularity = GetEnough(actorsPop, 10).ToArray(),
             CrewCsvs = GetEnough(crews, TakeCrew).ToArray(),
             CrewPopularity = GetEnough(crewPop, TakeCrew).ToArray(),
@@ -85,7 +118,9 @@ namespace MovieData.Services
             Budget = budget,
             Companies = companies.ToArray(),
             GenresFlags = genresFlags.ToArray(),
-            CompaniesFlags = companiesFlags.ToArray()
+            CompaniesFlags = companiesFlags.ToArray(),
+            ReleaseDate = movieDetails.ReleaseDate,
+            Rating = movieDetails.VoteAverage
          };
 
          var movieDataEntity = Map(movieDataModel);
@@ -119,7 +154,7 @@ namespace MovieData.Services
 
          foreach (var actor in crews)
          {
-            var dir = await _movieDataService.GetCrewCsv(actor.Name);
+            var dir = await _movieDataService.GetCrewCsv(actor.Name, actor);
             results.Add(dir);
          }
 
@@ -190,7 +225,9 @@ namespace MovieData.Services
             CrewPopularity = entity.CrewPopularity.Split(';').Select(x => double.Parse(x)).ToArray(),
             Genres = entity.Genres.Split(';'),
             Budget = entity.Budget,
-            Companies = entity.Companies.Split(';')
+            Companies = entity.Companies.Split(';'),
+            ReleaseDate = entity.ReleaseDate,
+            Rating = entity.Rating
          };
 
          return model;
@@ -210,7 +247,9 @@ namespace MovieData.Services
             Budget = model.Budget,
             Companies = string.Join(';', model.Companies),
             CompaniesFlags = string.Join(';', model.CompaniesFlags),
-            GenresFlags = string.Join(';', model.GenresFlags)
+            GenresFlags = string.Join(';', model.GenresFlags),
+            ReleaseDate = model.ReleaseDate,
+            Rating = model.Rating
          };
 
          return entity;
@@ -240,6 +279,13 @@ namespace MovieData.Services
          }
 
          return res;
+      }
+
+      private string GetValidFileName(string fileName)
+      {
+         // remove any invalid character from the filename.
+         String ret = Regex.Replace(fileName.Trim(), "[^A-Za-z0-9_. ]+", "");
+         return ret.Replace(" ", String.Empty);
       }
    }
 }

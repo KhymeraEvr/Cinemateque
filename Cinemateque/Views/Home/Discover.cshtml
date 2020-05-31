@@ -12,55 +12,61 @@
    @{
       foreach (var prod in Model)
       {
-         <div style="padding: 25px;  display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">
-            <div>
-               <img style="width:200px;" src="@prod.Poster" alt="Card image cap">
-            </div>
-            <p>
-               <a class="btn btn-primary" data-toggle="collapse" href="#@prod.Id" role="button" aria-expanded="false" aria-controls="collapseExample">
-                  Details
-               </a>
-            </p>
-            <div class="collapse" id="@prod.Id">
-               <ul style="list-style-type:none">
-                  <li>
-                     <span style="font-weight:bold">Name: </span> @prod.Title
-                  </li>
-                  <li><span style="font-weight:bold">Genre: </span>@string.Join(" ,", prod.Genres)</li>
-                  <li><span style="font-weight:bold">Premiere Date:  </span>@prod.ReleaseDate</li>
-                  <li><span style="font-weight:bold">Director:  </span>@prod.Director.Name</li>
-                  <li><span style="font-weight:bold">Rating:  </span>@prod.VoteAverage</li>
-                  <li>
-                     <a data-toggle="collapsOver" href="#@prod.Id+o" role="button" aria-expanded="false" aria-controls="collapseExample"  style="font-weight:bold">Overview:  </a>
-                     <div class="collapsOver" id="@prod.Id+o">
+      <div style="padding: 25px;  display: flex; flex-direction: column; justify-content: space-between; align-items: center; ">
+         <div>
+            <img style="width:200px;" src="@prod.Poster" alt="Card image cap">
+         </div>
+         <p>
+            <a class="btn btn-primary" data-toggle="collapse" href="#@prod.Id" role="button" aria-expanded="false" aria-controls="collapseExample">
+               Details
+            </a>
+
+         </p>
+         <h3><span class="label label-default">Rating: @prod.VoteAverage </span></h3>
+         @*@if (@prod.VoteAverage >= 7)
+         {
+            <h3><span class="label label-danger">Recommended</span></h3>
+         }*@
+         <div class="collapse" id="@prod.Id">
+            <ul style="list-style-type:none">
+               <li>
+                  <span style="font-weight:bold">Name: </span> @prod.Title
+               </li>
+               <li><span style="font-weight:bold">Genre: </span>@string.Join(" ,", prod.Genres)</li>
+               <li><span style="font-weight:bold">Premiere Date:  </span>@prod.ReleaseDate</li>
+               <li><span style="font-weight:bold">Director:  </span>@prod.Director?.Name</li>
+               <li>
+                  <div class="container">
+                     @*<button type="button" class="btn btn-primary" data-toggle="@prod.Id +collapse" data-target="#@prod.Id +demo">Overview</button>*@
+                     <div id="@prod.Id +demo" class="@prod.Id +collapse">
                         @prod.Overview
                      </div>
-
-                  </li>
-
-                  <li>
-                     <span style="font-weight:bold">Rate: </span>
-
-                     <select style="width:50px" onchange="rate(this)" data-assigned-id="@prod.Id" class="form-control form-control" id="status">
-                        <option> 1 </option>
-                        <option> 2 </option>
-                        <option> 3 </option>
-                        <option> 4</option>
-                        <option> 5 </option>
-                        <option> 6 </option>
-                        <option> 7 </option>
-                        <option> 8 </option>
-                        <option> 9 </option>
-                        <option> 10 </option>
-                     </select>
-                  </li>
-                  <div style="display: flex; flex-direction: row; flex-wrap: wrap;padding-top: 10px">
-                     <button class="btn" onclick="watchLater(this)" data-assigned-id="@prod.Id">Watch later</button>
                   </div>
-               </ul>
-            </div>
+               </li>
 
+               <li>
+                  <span style="font-weight:bold">Rate: </span>
+
+                  <select style="width:50px" onchange="rate(this)" data-assigned-id="@prod.Id" class="form-control form-control" id="status">
+                     <option> 1 </option>
+                     <option> 2 </option>
+                     <option> 3 </option>
+                     <option> 4</option>
+                     <option> 5 </option>
+                     <option> 6 </option>
+                     <option> 7 </option>
+                     <option> 8 </option>
+                     <option> 9 </option>
+                     <option> 10 </option>
+                  </select>
+               </li>
+               <div style="display: flex; flex-direction: row; flex-wrap: wrap;padding-top: 10px">
+                  <button class="btn" onclick="watchLater(this)" data-assigned-id="@prod.Id">Watch later</button>
+               </div>
+            </ul>
          </div>
+
+      </div>
       }
    }
 </div>

@@ -112,65 +112,23 @@ namespace Cinemateque.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("DirectorId");
+                    b.Property<string>("Actors");
 
-                    b.Property<double?>("Discount");
+                    b.Property<string>("Director");
 
                     b.Property<string>("FilmName");
 
-                    b.Property<string>("Genre");
+                    b.Property<string>("Genres");
 
-                    b.Property<string>("Image");
+                    b.Property<int>("Movieid");
 
-                    b.Property<DateTime?>("PremiereDate");
+                    b.Property<string>("PremiereDate");
 
-                    b.Property<double?>("Price");
-
-                    b.Property<int?>("Rating");
+                    b.Property<float?>("Rating");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DirectorId");
 
                     b.ToTable("Film");
-                });
-
-            modelBuilder.Entity("Cinemateque.DataAccess.Models.FilmActors", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("ActorId");
-
-                    b.Property<int?>("FilmId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ActorId");
-
-                    b.HasIndex("FilmId");
-
-                    b.ToTable("FilmActors");
-                });
-
-            modelBuilder.Entity("Cinemateque.DataAccess.Models.FilmReward", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime?>("Date");
-
-                    b.Property<int?>("FilmId");
-
-                    b.Property<string>("RewardName");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FilmId");
-
-                    b.ToTable("FilmReward");
                 });
 
             modelBuilder.Entity("Cinemateque.DataAccess.Models.Movie.MovieDataEntity", b =>
@@ -199,33 +157,15 @@ namespace Cinemateque.DataAccess.Migrations
 
                     b.Property<int>("MovieId");
 
+                    b.Property<double>("Rating");
+
+                    b.Property<string>("ReleaseDate");
+
                     b.Property<string>("Title");
 
                     b.HasKey("Id");
 
                     b.ToTable("Movies");
-                });
-
-            modelBuilder.Entity("Cinemateque.DataAccess.Models.Order", b =>
-                {
-                    b.Property<int>("OrderId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("FilmId");
-
-                    b.Property<string>("Status")
-                        .HasMaxLength(50);
-
-                    b.Property<int>("UserId");
-
-                    b.HasKey("OrderId");
-
-                    b.HasIndex("FilmId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Order");
                 });
 
             modelBuilder.Entity("Cinemateque.DataAccess.Models.User", b =>
@@ -292,44 +232,6 @@ namespace Cinemateque.DataAccess.Migrations
                     b.HasOne("Cinemateque.DataAccess.Models.CrewMember", "CrewMember")
                         .WithMany("Ratings")
                         .HasForeignKey("CrewMemberId");
-                });
-
-            modelBuilder.Entity("Cinemateque.DataAccess.Models.Film", b =>
-                {
-                    b.HasOne("Cinemateque.DataAccess.Models.Director", "Director")
-                        .WithMany()
-                        .HasForeignKey("DirectorId");
-                });
-
-            modelBuilder.Entity("Cinemateque.DataAccess.Models.FilmActors", b =>
-                {
-                    b.HasOne("Cinemateque.DataAccess.Models.Actor", "Actor")
-                        .WithMany()
-                        .HasForeignKey("ActorId");
-
-                    b.HasOne("Cinemateque.DataAccess.Models.Film", "Film")
-                        .WithMany("FilmActors")
-                        .HasForeignKey("FilmId");
-                });
-
-            modelBuilder.Entity("Cinemateque.DataAccess.Models.FilmReward", b =>
-                {
-                    b.HasOne("Cinemateque.DataAccess.Models.Film", "Film")
-                        .WithMany("FilmReward")
-                        .HasForeignKey("FilmId");
-                });
-
-            modelBuilder.Entity("Cinemateque.DataAccess.Models.Order", b =>
-                {
-                    b.HasOne("Cinemateque.DataAccess.Models.Film", "Film")
-                        .WithMany("Order")
-                        .HasForeignKey("FilmId")
-                        .HasConstraintName("FK_Order_Film");
-
-                    b.HasOne("Cinemateque.DataAccess.Models.User", "User")
-                        .WithMany("Order")
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("FK_Order_User");
                 });
 
             modelBuilder.Entity("Cinemateque.DataAccess.Models.UserFilms", b =>

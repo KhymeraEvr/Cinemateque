@@ -8,7 +8,7 @@ namespace MovieData.Services
    {
       Task<string> GetActorCsv(string actorName, CastModel actorModel = null);
 
-      Task<string> GetCrewCsv(string crewName);
+      Task<string> GetCrewCsv(string crewName, CrewModel crewModel = null);
 
       Task SaveMovie(MovieDataEntity movie);
 

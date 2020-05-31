@@ -23,5 +23,9 @@
       public string[] Companies { get; set; }
 
       public int[] CompaniesFlags { get; set; }
+
+      public string ReleaseDate { get; set; }
+
+      public double Rating { get; set; }
    }
 }

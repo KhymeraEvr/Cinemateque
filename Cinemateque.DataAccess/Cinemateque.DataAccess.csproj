@@ -10,9 +10,4 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="NewModels\" />
-    <Folder Include="NewModels\" />
-  </ItemGroup>
-
 </Project>

@@ -8,6 +8,7 @@ using Cinemateque.DataAccess;
 using Cinemateque.DataAccess.Models;
 using Cinemateque.DataAccess.Models.Crew;
 using CsvHelper;
+using Microsoft.EntityFrameworkCore;
 using MoviesProcessing.Models;
 using MoviesProcessing.Services;
 
@@ -30,7 +31,7 @@ namespace MovieData.Services
          {
             var model = await AnalizeActor(actor);
 
-            if (model == null) continue;  
+            if (model == null) continue;
 
             if (model.Ratings.Count >= 10)
             {
@@ -43,7 +44,7 @@ namespace MovieData.Services
 
       public async Task<Actor> AnalizeActor(CastModel actor)
       {
-         var actorEntity = _context.Actors.FirstOrDefault(a => a.ActorName == actor.Name);
+         var actorEntity = _context.Actors.Include(x => x.Ratings).FirstOrDefault(a => a.ActorName == actor.Name);
          if (actorEntity == null)
          {
             actorEntity = new Actor
@@ -61,19 +62,27 @@ namespace MovieData.Services
          return model;
       }
 
-      public async Task AnalizeCrew(CrewModel crew)
+      public async Task<CrewMember> AnalizeCrew(CrewModel crew)
       {
-         var crewEntity = _context.CrewMembers.FirstOrDefault(a => a.Name == crew.Name);
+         var model = await AnalizeCrewMember(crew);
+
+         return model;
+      }
+
+      public async Task<CrewMember> AnalizeCrewMember(CrewModel crew)
+      {
+         var crewEntity = _context.CrewMembers.Include(x => x.Ratings).FirstOrDefault(a => a.Name == crew.Name);
          if (crewEntity == null)
          {
             crewEntity = new CrewMember
             {
-               Name = crew.Name
+               Name = crew.Name,
+               Job = crew.Job
             };
          }
          else
          {
-            return;
+            return crewEntity;
          }
 
          var model = await GetCrewRatings(crewEntity, crew);
@@ -84,6 +93,8 @@ namespace MovieData.Services
          }
 
          await _context.SaveChangesAsync();
+
+         return model;
       }
 
       public async Task<Actor> GetActorRating(Actor entity, CastModel actor)
